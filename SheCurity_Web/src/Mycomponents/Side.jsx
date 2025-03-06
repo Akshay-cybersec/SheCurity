@@ -7,7 +7,7 @@ const Side = () => {
   return (
     <div
       className="position-fixed top-0 start-0 vh-100 text-white d-flex flex-column p-3"
-      style={{ width: "250px", backgroundColor: colors.main_color }}
+      style={{ width: "20%", backgroundColor: colors.main_color }}
     >
       <h2 className="mb-4">{pagedetail.logo_title}</h2>
       <p> Empowering Women with Smart Safety </p>

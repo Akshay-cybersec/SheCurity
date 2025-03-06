@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaUser, FaPhone, FaFileAlt } from "react-icons/fa"; 
+
 const CONTRACT_ADDRESS = "0xYourSepoliaContractAddress"; // Update with deployed contract address
 const CONTRACT_ABI = [ /* Your ABI Here */ ];
 const SEPOLIA_RPC_URL = "https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID"; // Or Alchemy
 
 const FileCase = () => {
-    const [victimName, setVictimName] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
+    const [victimName, setVictimName] = useState(null);
+    const [phoneNumber, setPhoneNumber] = useState(null);
     const [description, setDescription] = useState(""); 
-    const [fileName, setFileName] = useState("Choose File...");
-    
+    const [fileName, setFileName] = useState(null);
     const submitToBlockchain = async () => {
         if (!window.ethereum) {
           alert("MetaMask not found. Please install it.");
@@ -26,7 +26,6 @@ const FileCase = () => {
           await window.ethereum.request({ method: "eth_requestAccounts" });
           const signer = provider.getSigner();
     
-          // Connect to contract
           const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
     
           // Send transaction
@@ -39,6 +38,7 @@ const FileCase = () => {
           alert("Transaction failed. See console for details.");
         }
     };    
+    
   return (
     <div className="container mt-5">
       <form
