@@ -87,38 +87,39 @@ const FileCase = () => {
           </div>
         </div>
 
-        {/* Case Description */}
         <div className="form-group">
-          <label htmlFor="message" className="font-weight-bold d-block text-left">Describe Your Case</label>
-          <textarea
-            className="form-control"
-            id="message"
-            rows="4"
-            placeholder="Provide details of the incident"
-            value={description}
-            onChange={(e) => setFileName(e.target.value)}
-            required
-          ></textarea>
-        </div>
+  <label htmlFor="message" className="font-weight-bold d-block text-left">
+    Describe Your Case
+  </label>
+  <textarea
+    className="form-control"
+    id="message"
+    rows="4"
+    placeholder="Provide details of the incident"
+    value={description}
+    onChange={(e) => setDescription(e.target.value)}  
+    required
+  ></textarea>
+</div>
 
-        {/* File Upload */}
-        <div className="form-group ">
-          <label htmlFor="fileUpload" className=" col-form-label col-12 font-weight-bold  text-left">Upload Supporting Document</label>
-          <div className="custom-file">
-            <input
-              type="file"
-              className="custom-file-input"
-              id="fileUpload"
-              value={fileName}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-            />
-            <label className="custom-file-label" htmlFor="fileUpload">
-              Choose File...
-            </label>
-          </div>
-        </div>
-
+{/* File Upload */}
+<div className="form-group">
+  <label htmlFor="fileUpload" className="col-form-label col-12 font-weight-bold text-left">
+    Upload Supporting Document
+  </label>
+  <div className="custom-file">
+    <input
+      type="file"
+      className="custom-file-input"
+      id="fileUpload"
+      onChange={(e) => setFileName(e.target.files[0])}  
+      required
+    />
+    <label className="custom-file-label" htmlFor="fileUpload">
+      {fileName ? fileName.name : "Choose File..."}  
+    </label>
+  </div>
+</div>
         
         <button
   type="submit"
