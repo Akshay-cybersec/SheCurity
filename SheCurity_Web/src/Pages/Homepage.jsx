@@ -1,34 +1,59 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 const Homepage = () => {
-  const handleButton = () => {
-    setIsRunning(!isRunning); 
-  };
-  useEffect(() => {
-
-    let intervalId;
-
-    if (isRunning) {
-
-      intervalId = setInterval(() => {
-
-        setCurrentTime(prevTime => prevTime - 1);
-
-      }, 1000); 
-
-    }
-    return () => clearInterval(intervalId); 
-
-  }, [isRunning]);
-
-
+  const [showAlert, setShowAlert] = useState(false); 
+  const [seconds, setSeconds] = useState(10); 
+  const alarmRef = useRef(null); 
+  const timerRef = useRef(null); 
 
   useEffect(() => {
-    document.body.style.overflow = "hidden"; // Prevent scrolling
+    
+    alarmRef.current = new Audio("/siren.mp3");
+    alarmRef.current.loop = true; 
+
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = "auto"; // Restore scroll when unmounting
+      document.body.style.overflow = "auto";
+      stopAlarm(); 
+      clearInterval(timerRef.current); 
     };
   }, []);
+
+ 
+  const stopAlarm = () => {
+    if (alarmRef.current) {
+      alarmRef.current.pause();
+      alarmRef.current.currentTime = 0;
+    }
+  };
+
+ 
+  const handleSOSClick = () => {
+    setShowAlert(true); 
+    setSeconds(10);
+    alarmRef.current.play(); 
+
+   
+    timerRef.current = setInterval(() => {
+      setSeconds((prevSeconds) => {
+        if (prevSeconds === 1) {
+          clearInterval(timerRef.current); 
+         
+          stopAlarm(); 
+          setShowAlert(false); 
+          return 10; 
+        }
+        return prevSeconds - 1;
+      });
+    }, 1000);
+  };
+
+  
+  const closeAlert = () => {
+    setShowAlert(false); 
+    stopAlarm(); 
+    clearInterval(timerRef.current); 
+  };
 
   return (
     <div
@@ -40,7 +65,7 @@ const Homepage = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        overflow: "hidden", 
+        overflow: "hidden",
       }}
     >
       <p
@@ -48,16 +73,16 @@ const Homepage = () => {
           fontSize: "25px",
           fontWeight: "bold",
           color: "black",
-          marginBottom: "40px", 
-          marginTop: "-20px",
+          marginBottom: "40px",
+          marginTop: "-100px",
         }}
       >
         "Press the button in case of an emergency!"
       </p>
 
+      
       <button
-        onClick={handleButton}
-        
+        onClick={handleSOSClick}
         style={{
           backgroundColor: "red",
           color: "white",
@@ -76,15 +101,67 @@ const Homepage = () => {
           padding: "10px",
         }}
       >
-         {isRunning ? `Stop (${currentTime})` : 'Start'}
-        <span className="fs-1">HELP!!</span>
+        HELP!!
       </button>
 
      
+      {showAlert && (
+        <div
+          style={{
+            position: "fixed",
+            top: "0",
+            left: "0",
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: "1000",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "10px",
+              textAlign: "center",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+              width: "300px",
+            }}
+          >
+            <h2 style={{ color: "red", marginBottom: "10px" }}>🚨 EMERGENCY 🚨</h2>
+            <p style={{ fontSize: "18px", fontWeight: "bold" }}>
+              Your help is on the way!
+            </p>
+            <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+              Time Remaining: {seconds}s
+            </p>
+            <button
+              onClick={closeAlert}
+              style={{
+                marginTop: "20px",
+                padding: "10px 20px",
+                fontSize: "16px",
+                backgroundColor: "red",
+                fontWeight: "bold",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              CANCEL
+            </button>
+          </div>
+        </div>
+      )}
+
+      
       <div
         style={{
           position: "absolute",
-          bottom: "60px",
+          bottom: "100px",
           width: "100%",
           display: "flex",
           justifyContent: "center",

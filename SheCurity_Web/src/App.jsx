@@ -2,10 +2,10 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./Mycomponents/Navbar";
 import Homepage from "./Pages/Homepage";
-
 import Mimic from "./Pages/Mimic";
 import Products from "./Pages/Products";
 import Side from "./Mycomponents/Side";
+import FileCase from "./Pages/FileCase";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 
@@ -21,6 +21,7 @@ function App() {
             <Route path="/" element={<Homepage />} />
             <Route path="/Mimic" element={<Mimic />} />
             <Route path="/Products" element={<Products />} />
+            <Route path="/FileCase" element={<FileCase />} />
           </Routes>
         </div>
         </div>
