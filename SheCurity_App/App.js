@@ -17,11 +17,12 @@ export default function App() {
     <PaperProvider theme={theme}>
       <MainContainer />
     </PaperProvider>
-
+    
   );
+
+
 }
 AppRegistry.registerComponent("SheCurity", () => App);
-
 
 
 
