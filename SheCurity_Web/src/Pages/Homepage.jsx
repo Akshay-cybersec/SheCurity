@@ -1,22 +1,22 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Homepage = () => {
   const [alarmPlaying, setAlarmPlaying] = useState(false);
   const [sosAlarmPlaying, setSosAlarmPlaying] = useState(false);
   const [countdown, setCountdown] = useState(null);
   const [sosActive, setSosActive] = useState(false);
-  const alarmRef = useRef(null);
-  const sosAlarmRef = useRef(null);
+  const alarmRef = useRef(new Audio("/siren.mp3"));
+  const sosAlarmRef = useRef(new Audio("/siren.mp3"));
   const timerRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    alarmRef.current = new Audio("/siren.mp3");
     alarmRef.current.loop = true;
-    sosAlarmRef.current = new Audio("/siren.mp3");
     sosAlarmRef.current.loop = true;
-
     document.body.style.overflow = "hidden";
+
     return () => {
       document.body.style.overflow = "auto";
       stopAlarm();
@@ -26,26 +26,22 @@ const Homepage = () => {
   }, []);
 
   const stopAlarm = () => {
-    if (alarmRef.current) {
-      alarmRef.current.pause();
-      alarmRef.current.currentTime = 0;
-      setAlarmPlaying(false);
-    }
+    alarmRef.current.pause();
+    alarmRef.current.currentTime = 0;
+    setAlarmPlaying(false);
   };
 
   const stopSosAlarm = () => {
-    if (sosAlarmRef.current) {
-      sosAlarmRef.current.pause();
-      sosAlarmRef.current.currentTime = 0;
-      setSosAlarmPlaying(false);
-    }
+    sosAlarmRef.current.pause();
+    sosAlarmRef.current.currentTime = 0;
+    setSosAlarmPlaying(false);
   };
 
   const toggleAlarm = () => {
     if (alarmPlaying) {
       stopAlarm();
     } else {
-      alarmRef.current.play();
+      alarmRef.current.play().catch((error) => console.error("Error playing audio:", error));
       setAlarmPlaying(true);
     }
   };
@@ -63,7 +59,7 @@ const Homepage = () => {
     } else {
       setCountdown(10);
       setSosActive(true);
-      sosAlarmRef.current.play();
+      sosAlarmRef.current.play().catch((error) => console.error("Error playing audio:", error));
       setSosAlarmPlaying(true);
       timerRef.current = setInterval(() => {
         setCountdown((prev) => {
@@ -81,48 +77,22 @@ const Homepage = () => {
   };
 
   return (
-    <div
-      style={{
-        position: "relative",
-        height: "100vh",
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-      }}
-    >
-      <p
-        style={{
-          fontSize: "25px",
-          fontWeight: "bold",
-          color: "black",
-          marginBottom: "40px",
-          marginTop: "-100px",
-        }}
-      >
-        "Press the button in case of an emergency!"
-      </p>
-
+    <div className="d-flex flex-column align-items-center justify-content-center my-4">
       <button
         onClick={handleSOSClick}
+        className="btn btn-danger shadow-lg"
         style={{
-          backgroundColor: sosActive ? "gray" : "red",
+          backgroundColor: "red",
           color: "white",
-          width: "200px",
-          height: "200px",
-          fontSize: "18px",
+          width: "160px",
+          height: "160px",
+          fontSize: "22px",
           fontWeight: "bold",
-          border: "none",
           borderRadius: "50%",
-          cursor: "pointer",
-          boxShadow: "0 6px 12px rgba(0,0,0,0.6)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          textAlign: "center",
-          padding: "10px",
+          marginBottom: "20px",
         }}
       >
         {countdown !== null ? `HELP!! (${countdown}s)` : "HELP!!"}
@@ -130,62 +100,49 @@ const Homepage = () => {
 
       <button
         onClick={toggleAlarm}
-        style={{
-          marginTop: "20px",
-          padding: "10px 20px",
-          fontSize: "16px",
-          backgroundColor: alarmPlaying ? "gray" : "#ff9900",
-          fontWeight: "bold",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          borderRadius: "5px",
-        }}
+        className="btn btn-warning d-flex align-items-center gap-2 shadow"
+        style={{ fontSize: "18px", fontWeight: "bold", borderRadius: "10px", padding: "12px 24px" }}
       >
         {alarmPlaying ? <FaVolumeMute /> : <FaVolumeUp />} Alarm
       </button>
 
-      <div
-        style={{
-          position: "absolute",
-          bottom: "100px",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          gap: "50px",
-        }}
-      >
-        <button
-          onClick={() => callNumber("100")}
-          style={{
-            padding: "10px 20px",
-            fontSize: "16px",
-            backgroundColor: "#0099CC",
-            fontWeight: "bold",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          POLICE HELPLINE NUMBER
+      <div className="d-flex justify-content-center gap-4 my-3">
+        <button className="btn btn-info text-white fw-bold" style={{ padding: "12px 20px", borderRadius: "10px", minWidth: "200px" }} onClick={() => callNumber("100")}>
+          📞 POLICE HELPLINE - 100
         </button>
-        <button
-          onClick={() => callNumber("1091")}
-          style={{
-            padding: "10px 20px",
-            fontSize: "16px",
-            backgroundColor: "#0099CC",
-            fontWeight: "bold",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          WOMEN HELPLINE NUMBER
+        <button className="btn btn-info text-white fw-bold" style={{ padding: "12px 20px", borderRadius: "10px", minWidth: "200px" }} onClick={() => callNumber("1091")}>
+          📞 WOMEN HELPLINE - 1091
         </button>
+      </div>
+
+      <div className="row mt-4">
+        <div className="col-md-4 mb-3">
+          <div className="card shadow-lg p-3">
+            <h5 className="fw-bold">🛡️ Safety Tips</h5>
+            <p className="text-muted">Learn how to stay safe in any situation.</p>
+            <button className="btn btn-primary" onClick={() => navigate("/safety-tips")}>
+              View Tips
+            </button>
+          </div>
+        </div>
+        <div className="col-md-4 mb-3">
+          <div className="card shadow-lg p-3">
+            <h5 className="fw-bold">🎥 Safety Videos</h5>
+            <p className="text-muted">Watch videos on personal safety measures.</p>
+            <button className="btn btn-primary" onClick={() => navigate("/Safety-Videos")}>
+              Watch Videos
+            </button>
+          </div>
+        </div>
+        <div className="col-md-4 mb-3">
+          <div className="card shadow-lg p-3">
+            <h5 className="fw-bold">📍 Share Live Location</h5>
+            <p className="text-muted">Send your live location for emergency help.</p>
+            <button className="btn btn-success" onClick={() => navigate("/live-location")}>
+              Share Location
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

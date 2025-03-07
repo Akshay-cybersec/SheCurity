@@ -28,14 +28,14 @@ const Side = () => {
               to={to}
               className="nav-link text-white d-flex align-items-center gap-2"
               style={{
-                backgroundColor: location.pathname === to ? "#0056b3" : "transparent", // Active link color
+                backgroundColor: location.pathname === to ? "#2C2C2C" : "transparent", // Active link color
                 padding: "10px",
                 borderRadius: "5px",
                 transition: "0.3s",
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#007bff")} // Hover effect
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#2C2C2C")} // Hover effect
               onMouseLeave={(e) =>
-                (e.target.style.backgroundColor = location.pathname === to ? "#0056b3" : "transparent")
+                (e.target.style.backgroundColor = location.pathname === to ? "#2C2C2C" : "transparent")
               } 
             >
               {icon} {text}
