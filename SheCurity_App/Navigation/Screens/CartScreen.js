@@ -1,23 +1,51 @@
 import React from 'react';
-import { SafeAreaView, Text, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { Card, Button } from 'react-native-paper';
 
-export default function CartScreen() {
+export default function CartScreen({ route }) {
+  const { cartItems } = route.params || { cartItems: [] };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.text}>Welcome to the Cart Screen! 🛒</Text>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <Text style={styles.title}>Your Cart</Text>
+      {cartItems.length === 0 ? (
+        <Text style={styles.emptyText}>Your cart is empty</Text>
+      ) : (
+        <FlatList
+          data={cartItems}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <Card style={styles.card}>
+              <Card.Title title={item.title} />
+              <Card.Content>
+                <Text>{item.description}</Text>
+                <Text>{item.price} x {item.quantity}</Text>
+              </Card.Content>
+            </Card>
+          )}
+        />
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f9f9f9",
+    padding: 20,
   },
-  text: {
-    fontSize: 18,
+  title: {
+    fontSize: 22,
     fontWeight: "bold",
+    textAlign: "center",
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 20,
+  },
+  card: {
+    marginBottom: 10,
+    padding: 10,
   },
 });

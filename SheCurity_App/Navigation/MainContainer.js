@@ -12,9 +12,6 @@ import CardScreen from './Screens/CartScreen';
 import CaseScreen from './Screens/CaseScreen';
 
 
-
-
-
 const HomeName = 'Home';
 const ShoppingName = 'Shop';
 const SearchName = 'Search';
