@@ -12,7 +12,7 @@ export default function HomeScreen({ navigation }) {
           ]}
           onPress={() => alert('Button Pressed!')}
         >
-          <Text style={styles.buttonText}>SOS</Text>
+          <Text style={styles.buttonText}>sahil</Text>
         </Pressable>
       </View>
     </SafeAreaView>
