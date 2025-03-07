@@ -32,7 +32,7 @@ const VideoCard = ({ videoSrc, title }) => {
 
 const VideoGallery = () => {
   const videos = [
-    { src: "assets/videos/video_1.mp4", title: "Video 1" },
+    { src: "assets/videos/video_1.mp4", title: "Video" },
     { src: "assets/videos/video_2.mp4", title: "Video 2" },
     { src: "assets/videos/video_3.mp4", title: "Video 3" },
     { src: "assets/videos/video_4.mp4", title: "Video 4" },
