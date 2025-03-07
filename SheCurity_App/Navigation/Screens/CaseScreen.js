@@ -16,18 +16,18 @@ export default function CaseScreen() {
         type: '*/*', // Allow all file types
         copyToCacheDirectory: true,
       });
-
+  
       if (res.type === 'cancel') {
         console.log('User cancelled the document picker');
         return;
       }
-
-      setFile(res);
-      Alert.alert('File Selected', res.name);
+  
+      setFile(res);  // Store the selected file without an alert
     } catch (err) {
       console.log('Error:', err);
     }
   };
+  
 
   // Function to submit the case
   const handleSubmit = () => {
