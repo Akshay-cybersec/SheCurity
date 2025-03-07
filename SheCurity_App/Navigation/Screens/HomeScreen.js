@@ -33,6 +33,7 @@ export default function HomeScreen({ navigation }) {
         const city = address.city || 'Unknown City';
         const region = address.region || 'Unknown Region';
         setLocation(` ${city}, ${region}`);
+
       } else {
         setLocation('Location not found');
       }
@@ -121,6 +122,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.smallButtonText}>👩‍🦰 WOMEN HELPLINE</Text>
           </Pressable>
         </View>
+
       </View>
     </SafeAreaView>
   );

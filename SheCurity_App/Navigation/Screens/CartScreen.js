@@ -14,6 +14,7 @@ export default function CartScreen({ route }) {
     }, 2000); // 2-second delay
   };
 
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Your Cart</Text>
@@ -42,6 +43,7 @@ export default function CartScreen({ route }) {
             </Button>
           )}
         </>
+
       )}
     </View>
   );
@@ -71,6 +73,11 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#007AFF",
     alignSelf: "center",
+
+  checkoutButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "#007AFF",
   },
   loader: {
     marginTop: 20,

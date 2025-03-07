@@ -17,6 +17,7 @@ const TrustedPeopleName = 'Trusted People';
 const CardScreenName = 'Cart';
 const CaseScreenName = 'Case Register';
 
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -56,6 +57,7 @@ export default function MainContainer() {
                 <Tab.Screen name={HomeName} component={HomeScreen} options={{ headerTitle: 'SheCurity' }} />
                 <Tab.Screen name={ShoppingName} component={ShoppingScreen} options={{ headerTitle: 'Shop' }} />
                 <Tab.Screen name={CardScreenName} component={CardScreen} options={{ headerTitle: 'Card' }} />
+
                 <Tab.Screen name={CaseScreenName} component={CaseScreen} options={{ headerTitle: 'Case Register' }} />
             </Tab.Navigator>
         </NavigationContainer>

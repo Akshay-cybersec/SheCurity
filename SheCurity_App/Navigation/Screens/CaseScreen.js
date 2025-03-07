@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
+
 import { Button, Icon, MD3Colors } from 'react-native-paper';
 
 export default function CaseScreen() {
@@ -60,6 +61,7 @@ export default function CaseScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 20 }}>
+
       <Text style={styles.title}>File A Case</Text>
 
       {/* Victim Name */}
@@ -118,6 +120,7 @@ export default function CaseScreen() {
         Submit Case
       </Button>
     </ScrollView>
+
   );
 }
 
@@ -139,6 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginTop: 10,
     paddingHorizontal: 20,
+
   },
   input: {
     backgroundColor: '#fff',
@@ -147,6 +151,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     marginHorizontal: 20,
+
   },
   textArea: {
     height: 100,
@@ -158,6 +163,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginHorizontal: 20,
+
     marginTop: 5,
   },
   uploadText: {
@@ -180,3 +186,4 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
 });
+

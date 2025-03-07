@@ -24,6 +24,7 @@ export default function ShoppingScreen({ navigation, route }) {
     }, [route.params?.cartItems])
   );
 
+
   useEffect(() => {
     if (showToast) {
       Animated.parallel([
@@ -34,6 +35,7 @@ export default function ShoppingScreen({ navigation, route }) {
         }),
         Animated.timing(translateY, {
           toValue: -10,
+
           duration: 500,
           useNativeDriver: true,
         }),
@@ -47,6 +49,7 @@ export default function ShoppingScreen({ navigation, route }) {
             }),
             Animated.timing(translateY, {
               toValue: 50,
+
               duration: 500,
               useNativeDriver: true,
             }),
@@ -86,6 +89,7 @@ export default function ShoppingScreen({ navigation, route }) {
 
     navigation.navigate("Cart", { cartItems: Object.values(updatedCart) });
     setShowToast(true);
+
   };
 
   React.useLayoutEffect(() => {
@@ -128,7 +132,6 @@ export default function ShoppingScreen({ navigation, route }) {
           </Card>
         )}
       />
-
       {showToast && (
         <Animated.View style={[styles.toast, { opacity: fadeAnim, transform: [{ translateY }] }]}>
           <Text style={styles.toastText}>Item added to cart!</Text>
@@ -179,6 +182,7 @@ const styles = StyleSheet.create({
   toast: {
     position: "absolute",
     bottom: 60,
+
     alignSelf: "center",
     backgroundColor: "black",
     paddingVertical: 10,
