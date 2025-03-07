@@ -4,19 +4,10 @@ import { Button, Card } from 'react-native-paper';
 import { AntDesign } from "@expo/vector-icons"; 
 import Colors from '../../assets/Colors/color';
 import { useFocusEffect } from '@react-navigation/native';
-
-const products = [
-  { id: 1, title: "Pepper Spray", description: "Self-defense tool", price: "$10" },
-  { id: 2, title: "Safety Alarm", description: "Emergency personal alarm", price: "$15" },
-  { id: 3, title: "Taser", description: "Non-lethal self-defense", price: "$25" },
-  { id: 4, title: "Door Stop Alarm", description: "Security device for doors", price: "$12" },
-  { id: 5, title: "Personal GPS Tracker", description: "Track your location for safety", price: "$30" },
-  { id: 6, title: "Stun Gun", description: "Powerful self-defense weapon", price: "$40" },
-];
+import products from '../../assets/data/products.json'; // Import the JSON file
 
 export default function ShoppingScreen({ navigation, route }) {
   const [cart, setCart] = useState({});
-
   const [showToast, setShowToast] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
   const translateY = useState(new Animated.Value(50))[0];
@@ -24,7 +15,6 @@ export default function ShoppingScreen({ navigation, route }) {
   useFocusEffect(
     React.useCallback(() => {
       if (route.params?.cartItems) {
-        // Sync with cart items from CartScreen
         const updatedCart = {};
         route.params.cartItems.forEach(item => {
           updatedCart[item.id] = { ...item };
@@ -91,7 +81,7 @@ export default function ShoppingScreen({ navigation, route }) {
   const buyNow = (item) => {
     const updatedCart = {
       ...cart,
-      [item.id]: { ...item, quantity: (cart[item.id]?.quantity || 0)  },
+      [item.id]: { ...item, quantity: (cart[item.id]?.quantity || 1) },
     };
 
     navigation.navigate("Cart", { cartItems: Object.values(updatedCart) });
@@ -188,7 +178,7 @@ const styles = StyleSheet.create({
   },
   toast: {
     position: "absolute",
-    bottom: 60, // Slightly above bottom navbar
+    bottom: 60,
     alignSelf: "center",
     backgroundColor: "black",
     paddingVertical: 10,
@@ -200,5 +190,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 14,
     fontWeight: "bold",
-  },
+  },
 });
