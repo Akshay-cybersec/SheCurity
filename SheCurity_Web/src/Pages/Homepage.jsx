@@ -3,16 +3,25 @@ import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 
 const Homepage = () => {
   const [alarmPlaying, setAlarmPlaying] = useState(false);
+  const [sosAlarmPlaying, setSosAlarmPlaying] = useState(false);
+  const [countdown, setCountdown] = useState(null);
+  const [sosActive, setSosActive] = useState(false);
   const alarmRef = useRef(null);
+  const sosAlarmRef = useRef(null);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     alarmRef.current = new Audio("/siren.mp3");
     alarmRef.current.loop = true;
+    sosAlarmRef.current = new Audio("/siren.mp3");
+    sosAlarmRef.current.loop = true;
 
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "auto";
       stopAlarm();
+      stopSosAlarm();
+      clearInterval(timerRef.current);
     };
   }, []);
 
@@ -21,6 +30,14 @@ const Homepage = () => {
       alarmRef.current.pause();
       alarmRef.current.currentTime = 0;
       setAlarmPlaying(false);
+    }
+  };
+
+  const stopSosAlarm = () => {
+    if (sosAlarmRef.current) {
+      sosAlarmRef.current.pause();
+      sosAlarmRef.current.currentTime = 0;
+      setSosAlarmPlaying(false);
     }
   };
 
@@ -35,6 +52,32 @@ const Homepage = () => {
 
   const callNumber = (number) => {
     window.location.href = `tel:${number}`;
+  };
+
+  const handleSOSClick = () => {
+    if (sosActive) {
+      clearInterval(timerRef.current);
+      setCountdown(null);
+      setSosActive(false);
+      stopSosAlarm();
+    } else {
+      setCountdown(10);
+      setSosActive(true);
+      sosAlarmRef.current.play();
+      setSosAlarmPlaying(true);
+      timerRef.current = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === 1) {
+            clearInterval(timerRef.current);
+            callNumber("+8652550655");
+            setSosActive(false);
+            stopSosAlarm();
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
   };
 
   return (
@@ -63,9 +106,9 @@ const Homepage = () => {
       </p>
 
       <button
-        onClick={() => callNumber("+1234567890")}
+        onClick={handleSOSClick}
         style={{
-          backgroundColor: "red",
+          backgroundColor: sosActive ? "gray" : "red",
           color: "white",
           width: "200px",
           height: "200px",
@@ -82,7 +125,7 @@ const Homepage = () => {
           padding: "10px",
         }}
       >
-        HELP!!
+        {countdown !== null ? `HELP!! (${countdown}s)` : "HELP!!"}
       </button>
 
       <button
