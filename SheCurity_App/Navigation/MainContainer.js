@@ -10,12 +10,14 @@ import ShoppingScreen from './Screens/ShoppingScreen';
 import TrustedPeople from './Screens/TrustedPeople';
 import CardScreen from './Screens/CartScreen';
 import CaseScreen from './Screens/CaseScreen';
+import Morrescode from './Screens/Morrescode';
 
 const HomeName = 'Home';
 const ShoppingName = 'Shop';
 const TrustedPeopleName = 'Trusted People';
 const CardScreenName = 'Cart';
-const CaseScreenName = 'Case Register';
+const CaseScreenName = 'Case';
+const MorrescodeName = 'Morres code';
 
 
 const Tab = createBottomTabNavigator();
@@ -59,6 +61,7 @@ export default function MainContainer() {
                 <Tab.Screen name={CardScreenName} component={CardScreen} options={{ headerTitle: 'Card' }} />
 
                 <Tab.Screen name={CaseScreenName} component={CaseScreen} options={{ headerTitle: 'Case Register' }} />
+                {/* <Tab.Screen name={MorrescodeName} component={Morrescode} options={{ headerTitle: 'Morres' }} /> */}
             </Tab.Navigator>
         </NavigationContainer>
     );

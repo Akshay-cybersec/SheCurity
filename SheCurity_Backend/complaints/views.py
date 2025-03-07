@@ -8,7 +8,7 @@ from django.conf import settings
 from web3 import Web3
 
 INFURA_URL="https://sepolia.infura.io/v3/b13adaf2665b4a53b4d824bf7bd6c99b"
-CONTRACT_ADDRESS = "0xF5C2CA3aC480Ba84A3E5051d23e5B42ae19A8f91";
+CONTRACT_ADDRESS = "0xA0157Bff161Ab46068B6789826535d72C865736B";
 CONTRACT_ABI = [
 	{
 		"inputs": [

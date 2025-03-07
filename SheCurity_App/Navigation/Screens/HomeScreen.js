@@ -44,7 +44,7 @@ export default function HomeScreen({ navigation }) {
     if (isPlaying) return;
     setIsPlaying(true);
     setAlertMessage('🚨 SOS Alert is Active! 🚨');
-  
+
     if (isAlarmEnabled) {
       try {
         const { sound } = await Audio.Sound.createAsync(
@@ -57,13 +57,13 @@ export default function HomeScreen({ navigation }) {
         console.log('Error playing sound:', error);
       }
     }
-  
+
     // Automatically stop after 10 seconds
     setTimeout(() => {
       stopSosAlert();
     }, 10000);
   };
-  
+
   const stopSosAlert = async () => {
     if (soundRef.current) {
       await soundRef.current.stopAsync();
@@ -72,7 +72,7 @@ export default function HomeScreen({ navigation }) {
     }
     setIsPlaying(false);
     setAlertMessage('SOS Alert Stopped');
-  
+
     setTimeout(() => {
       setAlertMessage('');
     }, 3000);
@@ -80,9 +80,14 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.flash}>
+        <Ionicons name="flashlight" size={30} color="#D7263D" style={styles.locationIcon} />
+      </View>
       <View style={styles.locationContainer}>
-        <Text style={styles.locationText}>{location}</Text>
-        <Ionicons name="location" size={20} color="#D7263D" style={styles.locationIcon} />
+        <View>
+          <Text style={styles.locationText}>{location}</Text>
+          <Ionicons name="location" size={20} color="#D7263D" style={styles.locationIcon} />
+        </View>
       </View>
 
       {region && (
@@ -176,8 +181,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#D7263D',
   },
   buttonContainer: {
-  alignItems: 'center',
-  marginTop: 20},
+    alignItems: 'center',
+    marginTop: 20
+  },
   buttonText: {
     color: '#fff',
     fontSize: 20,
@@ -199,7 +205,12 @@ const styles = StyleSheet.create({
   },
   smallButtonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
+  flash:{
+    width:'100%',
+    flexDirection:'column',
+    marginLeft:'20',
+  }
 });
