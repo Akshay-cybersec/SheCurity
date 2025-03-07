@@ -20,7 +20,7 @@ export default function HomeScreen({ navigation }) {
 
       if (addressResponse.length > 0) {
         let address = addressResponse[0];
-        setLocation(`${address.street}, ${address.city}, ${address.region}`);
+        setLocation(` ${address.city}, ${address.region}`);
       } else {
         setLocation('Location not found');
       }
@@ -58,7 +58,7 @@ export default function HomeScreen({ navigation }) {
           style={styles.smallButton}
           onPress={() => alert('Second Button Pressed!')}
         >
-          <Text style={styles.smallButtonText}>WOMAN HELPLINE NUMBER</Text>
+          <Text style={styles.smallButtonText}>WOMEN HELPLINE NUMBER</Text>
         </Pressable>
       </View>
     </SafeAreaView>

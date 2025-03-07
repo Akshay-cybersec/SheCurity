@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, FlatList, StyleSheet, Alert } from 'react-native';
 import { Card, Button } from 'react-native-paper';
 
 export default function CartScreen({ route }) {
-  const { cartItems } = route.params || { cartItems: [] };
+  const cartItems = route.params?.cartItems ?? [];  
 
   return (
     <View style={styles.container}>
@@ -47,5 +47,10 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: 10,
     padding: 10,
+  },
+  checkoutButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "#007AFF",
   },
 });

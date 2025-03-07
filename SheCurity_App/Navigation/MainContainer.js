@@ -8,7 +8,7 @@ import Colors from '../assets/Colors/color';
 import HomeScreen from './Screens/HomeScreen';
 import ShoppingScreen from './Screens/ShoppingScreen';
 import SearchScreen from './Screens/SearchScreen';
-import CardScreen from './Screens/CartScreen';
+import CartScreen from './Screens/CartScreen';
 import CaseScreen from './Screens/CaseScreen';
 
 
@@ -56,7 +56,7 @@ export default function MainContainer() {
                 <Tab.Screen name={SearchName} component={SearchScreen} options={{ headerTitle: 'Search' }} />
                 <Tab.Screen name={HomeName} component={HomeScreen} options={{ headerTitle: 'SheCurity' }} />
                 <Tab.Screen name={ShoppingName} component={ShoppingScreen} options={{ headerTitle: 'Shop' }} />
-                <Tab.Screen name={CardScreenName} component={CardScreen} options={{ headerTitle: 'Card' }} />
+                <Tab.Screen name="Cart" component={CartScreen} options={{ headerTitle: 'Cart' }} />
                 <Tab.Screen name={CaseScreenName} component={CaseScreen} options={{ headerTitle: 'Case Register' }} />
             </Tab.Navigator>
         </NavigationContainer>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, StyleSheet, Text, View, FlatList, TouchableOpacity, Animated } from 'react-native';
 import { Button, Card } from 'react-native-paper';
 import { AntDesign } from "@expo/vector-icons"; 
 import Colors from '../../assets/Colors/color';
@@ -14,9 +14,43 @@ const products = [
 ];
 
 export default function ShoppingScreen({ navigation }) {
-  const [cart, setCart] = useState({}); // Stores item counts
+  const [cart, setCart] = useState({});
+  const [showToast, setShowToast] = useState(false);
+  const fadeAnim = useState(new Animated.Value(0))[0];
+  const translateY = useState(new Animated.Value(50))[0]; // Start from below the navbar
 
-  // Function to increase quantity
+  useEffect(() => {
+    if (showToast) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: -10, // Move slightly up
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setTimeout(() => {
+          Animated.parallel([
+            Animated.timing(fadeAnim, {
+              toValue: 0,
+              duration: 500,
+              useNativeDriver: true,
+            }),
+            Animated.timing(translateY, {
+              toValue: 50, // Move back down
+              duration: 500,
+              useNativeDriver: true,
+            }),
+          ]).start(() => setShowToast(false));
+        }, 2000);
+      });
+    }
+  }, [showToast]);
+
   const increaseQuantity = (item) => {
     setCart((prevCart) => ({
       ...prevCart,
@@ -24,7 +58,6 @@ export default function ShoppingScreen({ navigation }) {
     }));
   };
 
-  // Function to decrease quantity
   const decreaseQuantity = (item) => {
     setCart((prevCart) => {
       if (prevCart[item.id]?.quantity > 1) {
@@ -33,7 +66,6 @@ export default function ShoppingScreen({ navigation }) {
           [item.id]: { ...item, quantity: prevCart[item.id].quantity - 1 },
         };
       } else {
-        // Remove item if quantity is 0
         const updatedCart = { ...prevCart };
         delete updatedCart[item.id];
         return updatedCart;
@@ -41,10 +73,23 @@ export default function ShoppingScreen({ navigation }) {
     });
   };
 
-  // Function to buy a single item and navigate to CartScreen
   const buyNow = (item) => {
-    navigation.navigate("CardScreen", { cartItems: [{ ...item, quantity: 1 }] });
+    navigation.navigate("Cart", { cartItems: [{ ...item, quantity: 1 }] });
+    setShowToast(true); 
   };
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity 
+          style={styles.checkoutButton} 
+          onPress={() => navigation.navigate("Cart", { cartItems: Object.values(cart) })}
+        >
+          <Text style={styles.checkoutText}>Checkout</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, cart]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -59,7 +104,6 @@ export default function ShoppingScreen({ navigation }) {
               <Text>{item.price}</Text>
             </Card.Content>
             <Card.Actions>
-              {/* Quantity Control Buttons */}
               <View style={styles.quantityContainer}>
                 <TouchableOpacity onPress={() => decreaseQuantity(item)} style={styles.quantityButton}>
                   <AntDesign name="minus" size={20} color="black" />
@@ -69,28 +113,18 @@ export default function ShoppingScreen({ navigation }) {
                   <AntDesign name="plus" size={20} color="black" />
                 </TouchableOpacity>
               </View>
-              
               <Button onPress={() => buyNow(item)}>Buy</Button>
             </Card.Actions>
           </Card>
         )}
       />
 
-      {/* Floating Cart Button with Badge */}
-      <TouchableOpacity 
-        style={styles.fab} 
-        onPress={() => navigation.navigate("CardScreen", { cartItems: Object.values(cart) })} 
-      >
-        <AntDesign name="shoppingcart" size={25} color="white" />
-        
-        {Object.keys(cart).length > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>
-              {Object.values(cart).reduce((acc, item) => acc + item.quantity, 0)}
-            </Text>
-          </View>
-        )}
-      </TouchableOpacity>
+      {/* Slide-in Toast Notification from Bottom Navbar */}
+      {showToast && (
+        <Animated.View style={[styles.toast, { opacity: fadeAnim, transform: [{ translateY }] }]}>
+          <Text style={styles.toastText}>Item added to cart!</Text>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 }
@@ -121,36 +155,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  fab: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: Colors.primary || "#007AFF", 
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5, 
+  checkoutButton: {
+    marginRight: 15,
+    backgroundColor: Colors.primary || "#007AFF",
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 5,
   },
-  badge: {
-    position: "absolute",
-    top: -5,
-    right: -5,
-    backgroundColor: "red",
-    borderRadius: 15,
-    width: 22,
-    height: 22,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  badgeText: {
+  checkoutText: {
     color: "white",
-    fontSize: 12,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  toast: {
+    position: "absolute",
+    bottom: 60, // Slightly above bottom navbar
+    alignSelf: "center",
+    backgroundColor: "black",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  toastText: {
+    color: "white",
+    fontSize: 14,
     fontWeight: "bold",
   },
 });
