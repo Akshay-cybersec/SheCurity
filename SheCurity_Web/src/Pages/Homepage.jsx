@@ -1,58 +1,40 @@
 import React, { useEffect, useState, useRef } from "react";
+import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 
 const Homepage = () => {
-  const [showAlert, setShowAlert] = useState(false); 
-  const [seconds, setSeconds] = useState(10); 
-  const alarmRef = useRef(null); 
-  const timerRef = useRef(null); 
+  const [alarmPlaying, setAlarmPlaying] = useState(false);
+  const alarmRef = useRef(null);
 
   useEffect(() => {
-    
     alarmRef.current = new Audio("/siren.mp3");
-    alarmRef.current.loop = true; 
+    alarmRef.current.loop = true;
 
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "auto";
-      stopAlarm(); 
-      clearInterval(timerRef.current); 
+      stopAlarm();
     };
   }, []);
 
- 
   const stopAlarm = () => {
     if (alarmRef.current) {
       alarmRef.current.pause();
       alarmRef.current.currentTime = 0;
+      setAlarmPlaying(false);
     }
   };
 
- 
-  const handleSOSClick = () => {
-    setShowAlert(true); 
-    setSeconds(10);
-    alarmRef.current.play(); 
-
-   
-    timerRef.current = setInterval(() => {
-      setSeconds((prevSeconds) => {
-        if (prevSeconds === 1) {
-          clearInterval(timerRef.current); 
-         
-          stopAlarm(); 
-          setShowAlert(false); 
-          return 10; 
-        }
-        return prevSeconds - 1;
-      });
-    }, 1000);
+  const toggleAlarm = () => {
+    if (alarmPlaying) {
+      stopAlarm();
+    } else {
+      alarmRef.current.play();
+      setAlarmPlaying(true);
+    }
   };
 
-  
-  const closeAlert = () => {
-    setShowAlert(false); 
-    stopAlarm(); 
-    clearInterval(timerRef.current); 
+  const callNumber = (number) => {
+    window.location.href = `tel:${number}`;
   };
 
   return (
@@ -80,9 +62,8 @@ const Homepage = () => {
         "Press the button in case of an emergency!"
       </p>
 
-      
       <button
-        onClick={handleSOSClick}
+        onClick={() => callNumber("+1234567890")}
         style={{
           backgroundColor: "red",
           color: "white",
@@ -104,60 +85,26 @@ const Homepage = () => {
         HELP!!
       </button>
 
-     
-      {showAlert && (
-        <div
-          style={{
-            position: "fixed",
-            top: "0",
-            left: "0",
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: "1000",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "10px",
-              textAlign: "center",
-              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
-              width: "300px",
-            }}
-          >
-            <h2 style={{ color: "red", marginBottom: "10px" }}>🚨 EMERGENCY 🚨</h2>
-            <p style={{ fontSize: "18px", fontWeight: "bold" }}>
-              Your help is on the way!
-            </p>
-            <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-              Time Remaining: {seconds}s
-            </p>
-            <button
-              onClick={closeAlert}
-              style={{
-                marginTop: "20px",
-                padding: "10px 20px",
-                fontSize: "16px",
-                backgroundColor: "red",
-                fontWeight: "bold",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              CANCEL
-            </button>
-          </div>
-        </div>
-      )}
+      <button
+        onClick={toggleAlarm}
+        style={{
+          marginTop: "20px",
+          padding: "10px 20px",
+          fontSize: "16px",
+          backgroundColor: alarmPlaying ? "gray" : "#ff9900",
+          fontWeight: "bold",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          borderRadius: "5px",
+        }}
+      >
+        {alarmPlaying ? <FaVolumeMute /> : <FaVolumeUp />} Alarm
+      </button>
 
-      
       <div
         style={{
           position: "absolute",
@@ -169,6 +116,7 @@ const Homepage = () => {
         }}
       >
         <button
+          onClick={() => callNumber("100")}
           style={{
             padding: "10px 20px",
             fontSize: "16px",
@@ -182,6 +130,7 @@ const Homepage = () => {
           POLICE HELPLINE NUMBER
         </button>
         <button
+          onClick={() => callNumber("1091")}
           style={{
             padding: "10px 20px",
             fontSize: "16px",
