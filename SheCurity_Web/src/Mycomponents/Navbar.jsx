@@ -47,7 +47,7 @@ const Navbar = () => {
         padding: "10px 20px",
       }}
     >
-      <span className="navbar-brand mb-0 h1 fs-2">Welcome User!!</span>
+      <span className="navbar-brand mb-0 h1 fs-2"></span>
       <span className="fs-6 text-end d-flex align-items-center">
         <FaMapMarkerAlt className="me-2" /> {/* Map icon */}
         {coords ? (
