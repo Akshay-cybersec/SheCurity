@@ -26,8 +26,7 @@ export default function CaseScreen() {
     } catch (err) {
       console.log('Error:', err);
     }
-  };
-  
+  };  
 
   // Function to submit the case
   const handleSubmit = () => {
