@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, View, FlatList, TouchableOpacity, Animated } from 'react-native';
 import { Button, Card } from 'react-native-paper';
-import { AntDesign } from "@expo/vector-icons"; 
+import { AntDesign } from "@expo/vector-icons";
 import Colors from '../../assets/Colors/color';
 import { useFocusEffect } from '@react-navigation/native';
 import products from '../../assets/data/products.json'; // Import the JSON file
@@ -95,8 +95,8 @@ export default function ShoppingScreen({ navigation, route }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity 
-          style={styles.checkoutButton} 
+        <TouchableOpacity
+          style={styles.checkoutButton}
           onPress={() => navigation.navigate("Cart", { cartItems: Object.values(cart) })}
         >
           <Text style={styles.checkoutText}>Checkout</Text>
@@ -112,10 +112,11 @@ export default function ShoppingScreen({ navigation, route }) {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <Card style={styles.card}>
+            <Card.Cover source={{ uri: item.imageUrl }} style={styles.cardImage} />
             <Card.Title title={item.title} />
             <Card.Content>
               <Text>{item.description}</Text>
-              <Text>{item.price}</Text>
+              <Text style={styles.priceText}>${item.price.toFixed(2)}</Text>
             </Card.Content>
             <Card.Actions>
               <View style={styles.quantityContainer}>
@@ -130,6 +131,7 @@ export default function ShoppingScreen({ navigation, route }) {
               <Button onPress={() => buyNow(item)}>Buy</Button>
             </Card.Actions>
           </Card>
+
         )}
       />
       {showToast && (
@@ -147,8 +149,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     padding: 10,
   },
+  cardImage: {
+    height: 250, 
+    resizeMode: "cover"
+  },
   card: {
-    backgroundColor: 'white', 
+    backgroundColor: 'white',
     marginBottom: 10,
     padding: 5,
     borderWidth: 1,
