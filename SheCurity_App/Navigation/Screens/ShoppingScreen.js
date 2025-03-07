@@ -3,21 +3,27 @@ import { SafeAreaView, StyleSheet, Text, View, FlatList, TouchableOpacity, Anima
 import { Button, Card } from 'react-native-paper';
 import { AntDesign } from "@expo/vector-icons"; 
 import Colors from '../../assets/Colors/color';
+import { useFocusEffect } from '@react-navigation/native';
+import products from '../../assets/data/products.json'; // Import the JSON file
 
-const products = [
-  { id: 1, title: "Pepper Spray", description: "Self-defense tool", price: "$10" },
-  { id: 2, title: "Safety Alarm", description: "Emergency personal alarm", price: "$15" },
-  { id: 3, title: "Taser", description: "Non-lethal self-defense", price: "$25" },
-  { id: 4, title: "Door Stop Alarm", description: "Security device for doors", price: "$12" },
-  { id: 5, title: "Personal GPS Tracker", description: "Track your location for safety", price: "$30" },
-  { id: 6, title: "Stun Gun", description: "Powerful self-defense weapon", price: "$40" },
-];
-
-export default function ShoppingScreen({ navigation }) {
+export default function ShoppingScreen({ navigation, route }) {
   const [cart, setCart] = useState({});
   const [showToast, setShowToast] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
-  const translateY = useState(new Animated.Value(50))[0]; // Start from below the navbar
+  const translateY = useState(new Animated.Value(50))[0];
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (route.params?.cartItems) {
+        const updatedCart = {};
+        route.params.cartItems.forEach(item => {
+          updatedCart[item.id] = { ...item };
+        });
+        setCart(updatedCart);
+      }
+    }, [route.params?.cartItems])
+  );
+
 
   useEffect(() => {
     if (showToast) {
@@ -28,7 +34,8 @@ export default function ShoppingScreen({ navigation }) {
           useNativeDriver: true,
         }),
         Animated.timing(translateY, {
-          toValue: -10, // Move slightly up
+          toValue: -10,
+
           duration: 500,
           useNativeDriver: true,
         }),
@@ -41,7 +48,8 @@ export default function ShoppingScreen({ navigation }) {
               useNativeDriver: true,
             }),
             Animated.timing(translateY, {
-              toValue: 50, // Move back down
+              toValue: 50,
+
               duration: 500,
               useNativeDriver: true,
             }),
@@ -74,8 +82,14 @@ export default function ShoppingScreen({ navigation }) {
   };
 
   const buyNow = (item) => {
-    navigation.navigate("Cart", { cartItems: [{ ...item, quantity: 1 }] });
-    setShowToast(true); 
+    const updatedCart = {
+      ...cart,
+      [item.id]: { ...item, quantity: (cart[item.id]?.quantity || 1) },
+    };
+
+    navigation.navigate("Cart", { cartItems: Object.values(updatedCart) });
+    setShowToast(true);
+
   };
 
   React.useLayoutEffect(() => {
@@ -118,8 +132,6 @@ export default function ShoppingScreen({ navigation }) {
           </Card>
         )}
       />
-
-      {/* Slide-in Toast Notification from Bottom Navbar */}
       {showToast && (
         <Animated.View style={[styles.toast, { opacity: fadeAnim, transform: [{ translateY }] }]}>
           <Text style={styles.toastText}>Item added to cart!</Text>
@@ -169,7 +181,8 @@ const styles = StyleSheet.create({
   },
   toast: {
     position: "absolute",
-    bottom: 60, // Slightly above bottom navbar
+    bottom: 60,
+
     alignSelf: "center",
     backgroundColor: "black",
     paddingVertical: 10,

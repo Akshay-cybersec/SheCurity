@@ -7,16 +7,16 @@ import Colors from '../assets/Colors/color';
 
 import HomeScreen from './Screens/HomeScreen';
 import ShoppingScreen from './Screens/ShoppingScreen';
-import SearchScreen from './Screens/SearchScreen';
-import CartScreen from './Screens/CartScreen';
+import TrustedPeople from './Screens/TrustedPeople';
+import CardScreen from './Screens/CartScreen';
 import CaseScreen from './Screens/CaseScreen';
-
 
 const HomeName = 'Home';
 const ShoppingName = 'Shop';
-const SearchName = 'Search';
-const CardScreenName = 'Card';
-const CaseScreenName = 'Case Register'
+const TrustedPeopleName = 'Trusted People';
+const CardScreenName = 'Cart';
+const CaseScreenName = 'Case Register';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -34,13 +34,13 @@ export default function MainContainer() {
                         if (rn === HomeName) {
                             iconName = focused ? 'home' : 'home-outline';
                         } else if (rn === ShoppingName) {
-                            iconName = focused ? 'cart' : 'cart-outline';
-                        } else if (rn === SearchName) {
-                            iconName = focused ? 'search' : 'search-outline';
-                        }  else if (rn === CardScreenName) {
-                            iconName = focused ? 'card' : 'card-outline';  // 🎴 Icon for the Card tab
+                            iconName = focused ? 'cart' : 'cart-outline'; // 🛒 Fixed Shopping Icon
+                        } else if (rn === TrustedPeopleName) {
+                            iconName = focused ? 'people' : 'people-outline'; // 👥 Corrected Trusted People Icon
+                        } else if (rn === CardScreenName) {
+                            iconName = focused ? 'card' : 'card-outline'; // 🎴 Card Icon
                         } else if (rn === CaseScreenName) {
-                            iconName = focused ? 'briefcase' : 'briefcase-outline';  // ⚖️ Case Icon
+                            iconName = focused ? 'briefcase' : 'briefcase-outline'; // ⚖️ Case Icon
                         }
 
                         return <Ionicons name={iconName} size={size} color={color} />;
@@ -53,10 +53,11 @@ export default function MainContainer() {
                     headerTitleStyle: { fontSize: 25, fontWeight: 'bold' },
                 })}
             >
-                <Tab.Screen name={SearchName} component={SearchScreen} options={{ headerTitle: 'Search' }} />
+                <Tab.Screen name={TrustedPeopleName} component={TrustedPeople} options={{ headerTitle: 'Trusted People' }} />
                 <Tab.Screen name={HomeName} component={HomeScreen} options={{ headerTitle: 'SheCurity' }} />
                 <Tab.Screen name={ShoppingName} component={ShoppingScreen} options={{ headerTitle: 'Shop' }} />
-                <Tab.Screen name="Cart" component={CartScreen} options={{ headerTitle: 'Cart' }} />
+                <Tab.Screen name={CardScreenName} component={CardScreen} options={{ headerTitle: 'Card' }} />
+
                 <Tab.Screen name={CaseScreenName} component={CaseScreen} options={{ headerTitle: 'Case Register' }} />
             </Tab.Navigator>
         </NavigationContainer>

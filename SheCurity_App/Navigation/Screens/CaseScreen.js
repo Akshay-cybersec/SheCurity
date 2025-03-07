@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import * as DocumentPicker from 'expo-document-picker'; // Updated import
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from 'react-native';
+import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
+
 import { Button, Icon, MD3Colors } from 'react-native-paper';
 
 export default function CaseScreen() {
@@ -8,37 +10,58 @@ export default function CaseScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [caseDescription, setCaseDescription] = useState('');
   const [file, setFile] = useState(null);
+  const [image, setImage] = useState(null);
 
-  // Function to pick a file (Updated for Expo)
+  // Function to pick a document
   const pickDocument = async () => {
     try {
       const res = await DocumentPicker.getDocumentAsync({
-        type: '*/*', // Allow all file types
+        type: '/',
         copyToCacheDirectory: true,
       });
-  
+
       if (res.type === 'cancel') {
         console.log('User cancelled the document picker');
         return;
       }
-  
-      setFile(res);  // Store the selected file without an alert
+
+      setFile(res);
     } catch (err) {
       console.log('Error:', err);
     }
-  };  
+  };
+
+  // Function to open the camera
+  const openCamera = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission Denied', 'You need to allow camera access to use this feature.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
   // Function to submit the case
   const handleSubmit = () => {
-    if (!victimName || !phoneNumber || !caseDescription || !file) {
-      Alert.alert('Error', 'Please fill all fields and upload a document.');
+    if (!victimName || !phoneNumber || !caseDescription || (!file && !image)) {
+      Alert.alert('Error', 'Please fill all fields and upload a document or image.');
       return;
     }
     Alert.alert('Case Submitted', 'Your case has been filed successfully.');
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 20 }}>
+
       <Text style={styles.title}>File A Case</Text>
 
       {/* Victim Name */}
@@ -78,18 +101,32 @@ export default function CaseScreen() {
         <Text style={styles.uploadText}>{file ? file.name : 'Choose File'}</Text>
       </TouchableOpacity>
 
+      {/* Camera Upload */}
+      <Text style={styles.label}>Capture Image</Text>
+      <TouchableOpacity style={styles.uploadButton} onPress={openCamera}>
+        <Icon source="camera" color={MD3Colors.primary50} size={24} />
+        <Text style={styles.uploadText}>Open Camera</Text>
+      </TouchableOpacity>
+
+      {/* Show Uploaded Image */}
+      {image && (
+        <View style={styles.imagePreviewContainer}>
+          <Image source={{ uri: image }} style={styles.imagePreview} />
+        </View>
+      )}
+
       {/* Submit Button */}
       <Button mode="contained" onPress={handleSubmit} style={styles.submitButton}>
         Submit Case
       </Button>
-    </View>
+    </ScrollView>
+
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#f8f9fa',
   },
   title: {
@@ -104,6 +141,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 5,
     marginTop: 10,
+    paddingHorizontal: 20,
+
   },
   input: {
     backgroundColor: '#fff',
@@ -111,6 +150,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: '#ccc',
+    marginHorizontal: 20,
+
   },
   textArea: {
     height: 100,
@@ -121,6 +162,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0F2F1',
     padding: 10,
     borderRadius: 5,
+    marginHorizontal: 20,
+
     marginTop: 5,
   },
   uploadText: {
@@ -128,8 +171,19 @@ const styles = StyleSheet.create({
     color: '#00796B',
     fontWeight: '500',
   },
+  imagePreviewContainer: {
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  imagePreview: {
+    width: 150,
+    height: 150,
+    borderRadius: 10,
+  },
   submitButton: {
     marginTop: 20,
     backgroundColor: '#00796B',
-  },
+    marginHorizontal: 20,
+  },
 });
+
