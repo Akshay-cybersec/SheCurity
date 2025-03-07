@@ -1,11 +1,10 @@
+
 import React, { useState } from "react";
 import { FaUser, FaPhone } from "react-icons/fa";
 import axios from "axios";
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
-
-
-const CONTRACT_ADDRESS = "0xF5C2CA3aC480Ba84A3E5051d23e5B42ae19A8f91";
+const CONTRACT_ADDRESS = "0xA0157Bff161Ab46068B6789826535d72C865736B";
 const CONTRACT_ABI = [
   {
     "inputs": [
@@ -262,6 +261,7 @@ const CONTRACT_ABI = [
   }
 ];
 
+
 const uploadFileToIPFS = async (file) => {
   if (!file) {
     alert("No file selected.");
@@ -277,9 +277,7 @@ const uploadFileToIPFS = async (file) => {
       headers: { "Content-Type": "multipart/form-data" },
     });
     if (response.data?.success) {
-      const ipfsHash = response.data.ipfs_hash;
-      console.log("IPFS Hash:", ipfsHash);
-      return ipfsHash; 
+      return response.data.ipfs_hash;
     } else {
       console.error("Upload failed:", response.data);
       alert("Upload failed. Check console.");
@@ -292,8 +290,6 @@ const uploadFileToIPFS = async (file) => {
   }
 };
 
-
-
 const FileCase = () => {
   const [victimName, setVictimName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -301,59 +297,74 @@ const FileCase = () => {
   const [fileName, setFileName] = useState(null);
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // 🔄 Loader state
+
   const submitToBlockchain = async () => {
+    setIsLoading(true); // Start loader
+
     let ipfshash = await uploadFileToIPFS(fileName);
-    if ("geolocation" in navigator) {
-      navigator.geolocation.watchPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setLatitude(latitude)
-          setLongitude(longitude)
-        }
-      );
+    if (!ipfshash) {
+      setIsLoading(false);
+      return;
     }
-    
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition((position) => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+      });
+    }
+
     if (!window.ethereum) {
       alert("MetaMask not found. Please install it.");
+      setIsLoading(false);
       return;
     }
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
-        await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: "0xaa36a7" }],
-        });
-        await window.ethereum.request({ method: "eth_requestAccounts" });
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0xaa36a7" }],
+      });
+      await window.ethereum.request({ method: "eth_requestAccounts" });
 
-        const signer = await provider.getSigner();
-        
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-        const tx = await contract.storeLocation(victimName, phoneNumber, description, latitude.toString(), longitude.toString(), ipfshash);
-        console.log("akshay")
-        await tx.wait();
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      const tx = await contract.storeLocation(
+        victimName,
+        phoneNumber,
+        description,
+        latitude.toString(),
+        longitude.toString(),
+        ipfshash
+      );
 
-        alert("Transaction successful! Data stored on Sepolia blockchain.");
+      await tx.wait();
+      alert("Transaction successful! Data stored on Sepolia blockchain.");
     } catch (error) {
       console.error("Transaction failed:", error);
       alert("Transaction failed. See console for details.");
+    } finally {
+      setIsLoading(false); // Stop loader
     }
   };
-
 
   return (
     <div className="container mt-5">
       <form
-        className="p-4 "
+        className="p-4"
         style={{ maxWidth: "700px", margin: "auto", borderRadius: "10px" }}
         onSubmit={(e) => {
-          e.preventDefault(); // Prevent page refresh
+          e.preventDefault();
           submitToBlockchain();
         }}
       >
-
+        {/* Name Input */}
         <div className="form-group position-relative">
-          <label htmlFor="victimName" className="font-weight-bold d-block text-left">Name of Victim</label>
+          <label htmlFor="victimName" className="font-weight-bold d-block text-left">
+            Name of Victim
+          </label>
           <div className="input-group">
             <div className="input-group-prepend">
               <span className="input-group-text">
@@ -374,7 +385,9 @@ const FileCase = () => {
 
         {/* Phone Number */}
         <div className="form-group">
-          <label htmlFor="phoneNumber" className="font-weight-bold d-block text-left">Phone Number</label>
+          <label htmlFor="phoneNumber" className="font-weight-bold d-block text-left">
+            Phone Number
+          </label>
           <div className="input-group">
             <div className="input-group-prepend">
               <span className="input-group-text">
@@ -393,6 +406,7 @@ const FileCase = () => {
           </div>
         </div>
 
+        {/* Case Description */}
         <div className="form-group">
           <label htmlFor="message" className="font-weight-bold d-block text-left">
             Describe Your Case
@@ -427,6 +441,7 @@ const FileCase = () => {
           </div>
         </div>
 
+        {/* Submit Button with Loader */}
         <button
           type="submit"
           className="btn btn-primary d-block mx-auto mt-4"
@@ -435,15 +450,23 @@ const FileCase = () => {
             padding: "8px",
             width: "150px",
             borderRadius: "6px",
-            background: "linear-gradient(90deg, #007bff, #0056b3)",
+            background: isLoading
+              ? "linear-gradient(90deg, #6c757d, #495057)"
+              : "linear-gradient(90deg, #007bff, #0056b3)",
             border: "none",
             transition: "0.3s",
           }}
-          onClick={()=>submitToBlockchain()}
+          disabled={isLoading}
         >
-          Submit Case
+          {isLoading ? (
+            <>
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              &nbsp; Submitting...
+            </>
+          ) : (
+            "Submit Case"
+          )}
         </button>
-
       </form>
     </div>
   );
