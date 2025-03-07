@@ -7,6 +7,8 @@ import Products from "./Pages/Products";
 import Side from "./Mycomponents/Side";
 import FileCase from "./Pages/FileCase";
 import TrustedPeople from './Pages/TrustedPeople';
+import SafetyTips from './Pages/SafetyTips';
+import SafetyVideos from './Pages/SafetyVideos';
 import "bootstrap/dist/css/bootstrap.min.css";
 
 
@@ -24,7 +26,8 @@ function App() {
             <Route path="/TrustedPeople" element={<TrustedPeople />} />
             <Route path="/Products" element={<Products />} />
             <Route path="/FileCase" element={<FileCase />} />
-            
+            <Route path="/safety-tips" element={<SafetyTips />} />
+            <Route path="/Safety-Videos" element={<SafetyVideos />} />
           </Routes>
         </div>
         </div>
