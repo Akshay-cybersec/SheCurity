@@ -18,7 +18,7 @@ import CaseScreen from './Screens/CaseScreen';
 const HomeName = 'Home';
 const ShoppingName = 'Shop';
 const SearchName = 'Search';
-const CardScreenName = 'card';
+const CardScreenName = 'Card';
 const CaseScreenName = 'Case Register'
 
 const Tab = createBottomTabNavigator();
@@ -59,7 +59,7 @@ export default function MainContainer() {
                 <Tab.Screen name={SearchName} component={SearchScreen} options={{ headerTitle: 'Search' }} />
                 <Tab.Screen name={HomeName} component={HomeScreen} options={{ headerTitle: 'SheCurity' }} />
                 <Tab.Screen name={ShoppingName} component={ShoppingScreen} options={{ headerTitle: 'Shop' }} />
-                <Tab.Screen name={CardScreenName} component={CardScreen} options={{ headerTitle: 'card' }} />
+                <Tab.Screen name={CardScreenName} component={CardScreen} options={{ headerTitle: 'Card' }} />
                 <Tab.Screen name={CaseScreenName} component={CaseScreen} options={{ headerTitle: 'Case Register' }} />
             </Tab.Navigator>
         </NavigationContainer>
