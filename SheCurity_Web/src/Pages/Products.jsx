@@ -36,12 +36,12 @@ export default function SafetyProducts() {
             <div className="flex items-center my-2 justify-center">
               <button 
                 onClick={() => updateQuantity(id, -1)} 
-                className="px-3 py-1 bg-black-300 rounded-l hover:bg-gray-400 "
+                className="px-3 py-1 bg-black-300 text-white rounded-l hover:bg-gray-400 "
               >-</button>
               <span className="px-4">{quantity}</span>
               <button 
                 onClick={() => updateQuantity(id, 1)} 
-                className="px-3 py-1 bg-black-300 text-Black rounded-r hover:bg-gray-400"
+                className="px-3 py-1 bg-black-300 text-white rounded-r hover:bg-gray-400"
               >+</button>
             </div>
             <button className="mt-4 w-full bg-black text-white py-2 rounded-lg font-semibold hover:bg-gray-900 transition">
