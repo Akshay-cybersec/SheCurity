@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaMicrophone, FaShoppingCart, FaFileAlt } from "react-icons/fa";
+import {  FaMicrophone, FaShoppingCart, FaFileAlt } from "react-icons/fa";
 import { IoPersonAdd, IoHome } from "react-icons/io5";
 import { colors } from "../assets/colors";
 import { pagedetail } from "../assets/colors";

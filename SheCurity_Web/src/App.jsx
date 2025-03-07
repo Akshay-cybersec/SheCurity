@@ -7,7 +7,6 @@ import Products from "./Pages/Products";
 import Side from "./Mycomponents/Side";
 import FileCase from "./Pages/FileCase";
 import TrustedPeople from './Pages/TrustedPeople';
-import Cart from './Pages/Cart';
 import "bootstrap/dist/css/bootstrap.min.css";
 
 
@@ -25,7 +24,7 @@ function App() {
             <Route path="/TrustedPeople" element={<TrustedPeople />} />
             <Route path="/Products" element={<Products />} />
             <Route path="/FileCase" element={<FileCase />} />
-            <Route path="/Cart" element={<Cart />} />
+            
           </Routes>
         </div>
         </div>
