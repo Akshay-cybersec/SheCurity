@@ -343,6 +343,7 @@ const FileCase = () => {
 
   return (
     <div className="container mt-5">
+      <h2 className="text-center text-black font-weight-bold mb-4">FILE A CASE</h2> 
       <form
         className="p-4 "
         style={{ maxWidth: "700px", margin: "auto", borderRadius: "10px" }}
