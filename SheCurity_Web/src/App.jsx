@@ -9,15 +9,10 @@ import FileCase from "./Pages/FileCase";
 import TrustedPeople from './Pages/TrustedPeople';
 import SafetyTips from './Pages/SafetyTips';
 import SafetyVideos from './Pages/SafetyVideos';
-import ShareLocation from './Pages/ShareLocation';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useState, useEffect } from 'react';
-
-
 
 
 function App() {
-
   return (
     <Router>
       <div className="d-flex">
@@ -33,12 +28,10 @@ function App() {
             <Route path="/FileCase" element={<FileCase />} />
             <Route path="/safety-tips" element={<SafetyTips />} />
             <Route path="/Safety-Videos" element={<SafetyVideos />} />
-            <Route path="/ShareLocation" element={<ShareLocation />} />
           </Routes>
-
-         
         </div>
-      </div>
+        </div>
+        
     </Router>
   );
 }
