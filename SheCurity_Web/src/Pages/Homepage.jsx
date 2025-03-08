@@ -1,90 +1,30 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { ref, set } from "firebase/database";
-import { database } from "../Firebase"; // Firebase config import
 
 const Homepage = () => {
   const [alarmPlaying, setAlarmPlaying] = useState(false);
   const [sosAlarmPlaying, setSosAlarmPlaying] = useState(false);
   const [countdown, setCountdown] = useState(null);
   const [sosActive, setSosActive] = useState(false);
-  const [latitude, setLatitude] = useState(null);
-  const [longitude, setLongitude] = useState(null);
-  const [isMistake, setIsMistake] = useState(false); // Track if it's a mistake
-  const [showPopup, setShowPopup] = useState(false); // To show confirmation popup
-  const [sosProcessing, setSosProcessing] = useState(false); // Flag to prevent multiple clicks
   const alarmRef = useRef(new Audio("/siren.mp3"));
   const sosAlarmRef = useRef(new Audio("/siren.mp3"));
   const timerRef = useRef(null);
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    const storeDatatest = (latitude, longitude, message,i,j) => {
-      const userId = "user33"; // You can get the user id dynamically
-      set(ref(database, 'users/' + userId), {
-        Latitude: i,
-        Longitude: j,
-        Message: "hello"
-      })
-      .then(() => {
-        console.log('Data stored successfully');
-      })
-      .catch((error) => {
-        console.error('Error storing data: ', error);
-      });
-    };
 
-    for (let index = 0; index < 5; index++) {
-      storeDatatest(index,"2")
-      
-    }
+  useEffect(() => {
+    alarmRef.current.loop = true;
+    sosAlarmRef.current.loop = true;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "auto";
+      stopAlarm();
+      stopSosAlarm();
+      clearInterval(timerRef.current);
+    };
   }, []);
 
-  function generateRandomString(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  }
-
-  // Store the SOS alert data in Firebase Realtime Database
-  const storeData = (latitude, longitude, message) => {
-    const userId = "user" + generateRandomString(5); // You can get the user id dynamically
-    set(ref(database, 'users/' + userId), {
-      Latitude: latitude,
-      Longitude: longitude,
-      Message: message
-    })
-    .then(() => {
-      console.log('Data stored successfully');
-    })
-    .catch((error) => {
-      console.error('Error storing data: ', error);
-    });
-  };
-
-  // Get the current location (latitude, longitude)
-  const getLocation = () => { 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLatitude(position.coords.latitude);
-          setLongitude(position.coords.longitude);
-        },
-        (error) => {
-          console.error("Error getting location: ", error);
-        }
-      );
-    } else {
-      alert("Geolocation is not supported by this browser.");
-    }
-  };
-
-  // Start/Stop the siren sound for the alarm
   const stopAlarm = () => {
     alarmRef.current.pause();
     alarmRef.current.currentTime = 0;
@@ -106,45 +46,17 @@ const Homepage = () => {
     }
   };
 
-  // Call emergency numbers
   const callNumber = (number) => {
     window.location.href = `tel:${number}`;
   };
 
   const handleSOSClick = () => {
-    if (sosProcessing) {
-      return; // Prevent triggering if SOS process is already in progress
-    }
-
-    setSosProcessing(true); // Set processing flag
-
-    getLocation(); // Get current location before activating SOS
-
     if (sosActive) {
-      if (isMistake) {
-        // If it was a mistake, stop the process and reset everything
-        stopSosAlarm();
-        clearInterval(timerRef.current);
-        setSosActive(false);
-        setCountdown(null);
-        setIsMistake(false); // Reset mistake flag
-        setSosProcessing(false); // Reset processing flag
-        return;
-      }
-
-      // Store data in Firebase only if it's not a mistake
-      if (latitude && longitude) {
-        storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
-      }
-
-      // Clear countdown and stop alarm after storing
       clearInterval(timerRef.current);
-      setSosActive(false);
       setCountdown(null);
+      setSosActive(false);
       stopSosAlarm();
-      setSosProcessing(false); // Reset processing flag
     } else {
-      // Start SOS process (Show popup and countdown)
       setCountdown(10);
       setSosActive(true);
       sosAlarmRef.current.play().catch((error) => console.error("Error playing audio:", error));
@@ -152,52 +64,17 @@ const Homepage = () => {
       timerRef.current = setInterval(() => {
         setCountdown((prev) => {
           if (prev === 1) {
-            // If user doesn't respond, send data after 10 seconds
-            if (latitude && longitude) {
-              storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
-            }
+            clearInterval(timerRef.current);
             callNumber("+8652550655");
             setSosActive(false);
             stopSosAlarm();
-            clearInterval(timerRef.current);
-            setSosProcessing(false); // Reset processing flag
             return null;
           }
           return prev - 1;
         });
       }, 1000);
-
-      // Show the confirmation popup
-      setShowPopup(true);
     }
   };
-
-  const handlePopupClick = (isMistakeResponse) => {
-    if (isMistakeResponse) {
-      // If it's a mistake, stop everything
-      setIsMistake(true);
-      stopSosAlarm();
-      clearInterval(timerRef.current);
-      setSosActive(false);
-      setCountdown(null);
-    }
-    // Close the popup regardless of the response
-    setShowPopup(false);
-    setSosProcessing(false); // Reset processing flag once popup action is complete
-  };
-
-  useEffect(() => {
-    alarmRef.current.loop = true;
-    sosAlarmRef.current.loop = true;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = "auto";
-      stopAlarm();
-      stopSosAlarm();
-      clearInterval(timerRef.current);
-    };
-  }, []);
 
   return (
     <div className="d-flex flex-column align-items-center justify-content-center my-4">
@@ -217,7 +94,6 @@ const Homepage = () => {
           justifyContent: "center",
           marginBottom: "20px",
         }}
-        disabled={sosProcessing} // Disable the button during SOS processing
       >
         {countdown !== null ? `HELP!! (${countdown}s)` : "HELP!!"}
       </button>
@@ -238,31 +114,6 @@ const Homepage = () => {
           📞 WOMEN HELPLINE - 1091
         </button>
       </div>
-
-      {/* SOS Confirmation Popup */}
-      {showPopup && (
-        <div className="popup" style={popupStyle}>
-          <div className="popup-content" style={popupContentStyle}>
-            <h5 style={{ textAlign: "center" }}>Is this a mistake?</h5>
-            <div className="d-flex justify-content-around mt-3">
-              <button
-                className="btn btn-danger"
-                onClick={() => handlePopupClick(true)}
-                style={buttonStyle}
-              >
-                Yes, it's a mistake
-              </button>
-              <button
-                className="btn btn-success"
-                onClick={() => handlePopupClick(false)}
-                style={buttonStyle}
-              >
-                No, continue
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="row mt-4">
         <div className="col-md-4 mb-3">
@@ -287,7 +138,7 @@ const Homepage = () => {
           <div className="card shadow-lg p-3">
             <h5 className="fw-bold">📍 Share Live Location</h5>
             <p className="text-muted">Send your live location for emergency help.</p>
-            <button className="btn btn-success" onClick={() => navigate("/ShareLocation")}>
+            <button className="btn btn-success" onClick={() => navigate("/live-location")}>
               Share Location
             </button>
           </div>
@@ -295,32 +146,6 @@ const Homepage = () => {
       </div>
     </div>
   );
-};
-
-const popupStyle = {
-  position: "fixed",
-  top: "0",
-  left: "0",
-  width: "100%",
-  height: "100%",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: "9999",
-};
-
-const popupContentStyle = {
-  backgroundColor: "white",
-  padding: "20px",
-  borderRadius: "10px",
-  textAlign: "center",
-  width: "300px",
-};
-
-const buttonStyle = {
-  padding: "10px 20px",
-  margin: "10px",
 };
 
 export default Homepage;
