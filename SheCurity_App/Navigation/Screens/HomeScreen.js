@@ -5,15 +5,29 @@ import { Linking } from 'react-native';
 import { Audio } from 'expo-av';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MapView, { Marker } from 'react-native-maps';
+import Torch from "react-native-torch";
+import { Camera } from "expo-camera";
+
 
 export default function HomeScreen({ navigation }) {
   const [location, setLocation] = useState('Fetching location...');
   const [region, setRegion] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
-  const [isAlarmEnabled, setIsAlarmEnabled] = useState(true); // Toggle state
+  const [isAlarmEnabled, setIsAlarmEnabled] = useState(true);
   const soundRef = useRef(null);
+  const [isTorchOn, setIsTorchOn] = useState(false);
 
+  const toggleFlashlight = () => {
+    setIsTorchOn(!isTorchOn);
+    Torch.switchState(!isTorchOn);
+  };
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
+  }, []);
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -81,7 +95,9 @@ export default function HomeScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.flash}>
-        <Ionicons name="flashlight" size={30} color="#D7263D" style={styles.locationIcon} />
+        <View >
+          <Ionicons name="flashlight" size={40} color="black" style={styles.flashicon} onPress={toggleFlashlight} />
+        </View>
       </View>
       <View style={styles.locationContainer}>
         <View>
@@ -134,6 +150,9 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  flashicon: {
+    left: 20,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -208,9 +227,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
-  flash:{
-    width:'100%',
-    flexDirection:'column',
-    marginLeft:'20',
+  flash: {
+    width: '100%',
+    flexDirection: 'column',
+    marginLeft: '20',
   }
 });

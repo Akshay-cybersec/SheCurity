@@ -1,4 +1,5 @@
 {
+  "permissions": ["CAMERA"],
   "expo": {
     "name": "SheCurity",
     "slug": "SheCurity",
