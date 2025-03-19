@@ -23,7 +23,7 @@ export default function TrustedPeopleScreen() {
                         <Card className="mb-3 shadow-sm w-100">
                             <Card.Body className="d-flex align-items-center justify-content-between">
                                 {/* Avatar Icon */}
-                                <FaUserCircle size={50} color="#008585" />
+                                <FaUserCircle size={50} color="#d8598c" />
                                 
                                 {/* Contact Info */}
                                 <div className="flex-grow-1 ms-3">
@@ -32,8 +32,8 @@ export default function TrustedPeopleScreen() {
                                 </div>
 
                                 {/* Call Button */}
-                                <Button variant="success" className="rounded-circle p-2" onClick={() => handleCall(contact.phone)}>
-                                    <FaPhone size={20} />
+                                <Button  className="rounded-circle p-2" onClick={() => handleCall(contact.phone)}>
+                                    <FaPhone size={20} color="#d8598c" />
                                 </Button>
                             </Card.Body>
                         </Card>

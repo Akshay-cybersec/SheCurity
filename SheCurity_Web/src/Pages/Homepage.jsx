@@ -1,326 +1,199 @@
 import React, { useEffect, useState, useRef } from "react";
-import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ref, set } from "firebase/database";
-import { database } from "../Firebase"; // Firebase config import
+import { database } from "../Firebase";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import { Box } from "@mui/material";
+import safetytips from "../assets/safetytips.jpeg";
+import safetyvideos from "../assets/safetyvideos.png";
 
 const Homepage = () => {
-  const [alarmPlaying, setAlarmPlaying] = useState(false);
-  const [sosAlarmPlaying, setSosAlarmPlaying] = useState(false);
-  const [countdown, setCountdown] = useState(null);
-  const [sosActive, setSosActive] = useState(false);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
-  const [isMistake, setIsMistake] = useState(false); // Track if it's a mistake
-  const [showPopup, setShowPopup] = useState(false); // To show confirmation popup
-  const [sosProcessing, setSosProcessing] = useState(false); // Flag to prevent multiple clicks
-  const alarmRef = useRef(new Audio("/siren.mp3"));
+  const [sosActive, setSosActive] = useState(false);
+  const [countdown, setCountdown] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
   const sosAlarmRef = useRef(new Audio("/siren.mp3"));
   const timerRef = useRef(null);
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    const storeDatatest = (latitude, longitude, message,i,j) => {
-      const userId = "user33"; // You can get the user id dynamically
-      set(ref(database, 'users/' + userId), {
-        Latitude: i,
-        Longitude: j,
-        Message: "hello"
-      })
-      .then(() => {
-        console.log('Data stored successfully');
-      })
-      .catch((error) => {
-        console.error('Error storing data: ', error);
-      });
-    };
 
-    for (let index = 0; index < 5; index++) {
-      storeDatatest(index,"2")
-      
-    }
-  }, []);
-
-  function generateRandomString(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  }
-
-  // Store the SOS alert data in Firebase Realtime Database
-  const storeData = (latitude, longitude, message) => {
-    const userId = "user" + generateRandomString(5); // You can get the user id dynamically
-    set(ref(database, 'users/' + userId), {
-      Latitude: latitude,
-      Longitude: longitude,
-      Message: message
-    })
-    .then(() => {
-      console.log('Data stored successfully');
-    })
-    .catch((error) => {
-      console.error('Error storing data: ', error);
-    });
+  const generateRandomString = (length) => {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    return Array.from({ length }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join("");
   };
 
-  // Get the current location (latitude, longitude)
-  const getLocation = () => { 
+  const storeData = (latitude, longitude, message) => {
+    const userId = "user" + generateRandomString(5);
+    set(ref(database, "users/" + userId), { Latitude: latitude, Longitude: longitude, Message: message })
+      .then(() => console.log("Data stored successfully"))
+      .catch((error) => console.error("Error storing data: ", error));
+  };
+
+  const getLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLatitude(position.coords.latitude);
           setLongitude(position.coords.longitude);
         },
-        (error) => {
-          console.error("Error getting location: ", error);
-        }
+        (error) => console.error("Error getting location: ", error)
       );
     } else {
       alert("Geolocation is not supported by this browser.");
     }
   };
 
-  // Start/Stop the siren sound for the alarm
-  const stopAlarm = () => {
-    alarmRef.current.pause();
-    alarmRef.current.currentTime = 0;
-    setAlarmPlaying(false);
-  };
-
-  const stopSosAlarm = () => {
-    sosAlarmRef.current.pause();
-    sosAlarmRef.current.currentTime = 0;
-    setSosAlarmPlaying(false);
-  };
-
-  const toggleAlarm = () => {
-    if (alarmPlaying) {
-      stopAlarm();
-    } else {
-      alarmRef.current.play().catch((error) => console.error("Error playing audio:", error));
-      setAlarmPlaying(true);
-    }
-  };
-
-  // Call emergency numbers
   const callNumber = (number) => {
     window.location.href = `tel:${number}`;
   };
 
   const handleSOSClick = () => {
-    if (sosProcessing) {
-      return; // Prevent triggering if SOS process is already in progress
-    }
-
-    setSosProcessing(true); // Set processing flag
-
-    getLocation(); // Get current location before activating SOS
-
     if (sosActive) {
-      if (isMistake) {
-        // If it was a mistake, stop the process and reset everything
-        stopSosAlarm();
-        clearInterval(timerRef.current);
-        setSosActive(false);
-        setCountdown(null);
-        setIsMistake(false); // Reset mistake flag
-        setSosProcessing(false); // Reset processing flag
-        return;
-      }
-
-      // Store data in Firebase only if it's not a mistake
-      if (latitude && longitude) {
-        storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
-      }
-
-      // Clear countdown and stop alarm after storing
-      clearInterval(timerRef.current);
+      // Stop SOS if already active
       setSosActive(false);
       setCountdown(null);
-      stopSosAlarm();
-      setSosProcessing(false); // Reset processing flag
+      clearInterval(timerRef.current);
+      sosAlarmRef.current.pause();
+      sosAlarmRef.current.currentTime = 0;
     } else {
-      // Start SOS process (Show popup and countdown)
+      // Start SOS
+      getLocation();
       setCountdown(10);
       setSosActive(true);
       sosAlarmRef.current.play().catch((error) => console.error("Error playing audio:", error));
-      setSosAlarmPlaying(true);
+  
       timerRef.current = setInterval(() => {
         setCountdown((prev) => {
           if (prev === 1) {
-            // If user doesn't respond, send data after 10 seconds
-            if (latitude && longitude) {
-              storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
-            }
-            callNumber("+8652550655");
-            setSosActive(false);
-            stopSosAlarm();
+            if (latitude && longitude) storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
             clearInterval(timerRef.current);
-            setSosProcessing(false); // Reset processing flag
+            setSosActive(false);
+            sosAlarmRef.current.pause();
+            sosAlarmRef.current.currentTime = 0;
             return null;
           }
           return prev - 1;
         });
       }, 1000);
-
-      // Show the confirmation popup
-      setShowPopup(true);
     }
   };
-
-  const handlePopupClick = (isMistakeResponse) => {
-    if (isMistakeResponse) {
-      // If it's a mistake, stop everything
-      setIsMistake(true);
-      stopSosAlarm();
-      clearInterval(timerRef.current);
-      setSosActive(false);
-      setCountdown(null);
-    }
-    // Close the popup regardless of the response
+  
+  const handlePopupClick = (isMistake) => {
     setShowPopup(false);
-    setSosProcessing(false); // Reset processing flag once popup action is complete
+    if (isMistake) {
+      setSosActive(false);
+      sosAlarmRef.current.pause();
+      sosAlarmRef.current.currentTime = 0;
+    } else if (latitude && longitude) {
+      storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
+    }
   };
 
   useEffect(() => {
-    alarmRef.current.loop = true;
     sosAlarmRef.current.loop = true;
-    document.body.style.overflow = "hidden";
-
     return () => {
-      document.body.style.overflow = "auto";
-      stopAlarm();
-      stopSosAlarm();
       clearInterval(timerRef.current);
+      sosAlarmRef.current.pause();
     };
   }, []);
 
   return (
     <div className="d-flex flex-column align-items-center justify-content-center my-4">
       <button
-        onClick={handleSOSClick}
-        className="btn btn-danger shadow-lg"
-        style={{
-          backgroundColor: "red",
-          color: "white",
-          width: "160px",
-          height: "160px",
-          fontSize: "22px",
-          fontWeight: "bold",
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: "20px",
-        }}
-        disabled={sosProcessing} // Disable the button during SOS processing
-      >
-        {countdown !== null ? `HELP!! (${countdown}s)` : "HELP!!"}
-      </button>
+  onClick={handleSOSClick}
+  className={`btn ${sosActive ? "btn-secondary" : "btn-danger"} shadow-lg`}
+  style={{
+    backgroundColor: sosActive ? "gray" : "red",
+    color: "white",
+    width: "200px",
+    height: "200px",
+    fontSize: "22px",
+    fontWeight: "bold",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: "20px",
+  }}
+>
+  {sosActive ? "STOP" : countdown !== null ? `HELP!! (${countdown}s)` : "HELP!!"}
+</button>
 
-      <button
-        onClick={toggleAlarm}
-        className="btn btn-warning d-flex align-items-center gap-2 shadow"
-        style={{ fontSize: "18px", fontWeight: "bold", borderRadius: "10px", padding: "12px 24px" }}
-      >
-        {alarmPlaying ? <FaVolumeMute /> : <FaVolumeUp />} Alarm
-      </button>
-
-      <div className="d-flex justify-content-center gap-4 my-3">
-        <button className="btn btn-info text-white fw-bold" style={{ padding: "12px 20px", borderRadius: "10px", minWidth: "200px" }} onClick={() => callNumber("100")}>
+      <div className="d-flex justify-content-center gap-10 my-3">
+        <button
+          className="btn btn-info text-white fw-bold"
+          style={{  padding: "12px 20px",
+            borderRadius: "10px",
+            minWidth: "200px",
+            background: "linear-gradient(135deg,rgb(149, 42, 226),rgb(61, 6, 90))", 
+            border: "none",
+            }}
+           
+          onClick={() => callNumber("100")}
+        >
           📞 POLICE HELPLINE - 100
         </button>
-        <button className="btn btn-info text-white fw-bold" style={{ padding: "12px 20px", borderRadius: "10px", minWidth: "200px" }} onClick={() => callNumber("1091")}>
+        <button
+          className="btn btn-info text-white fw-bold"
+          style={{ padding: "12px 20px",
+            borderRadius: "10px",
+            minWidth: "200px",
+            background: "linear-gradient(135deg,rgb(149, 42, 226),rgb(61, 6, 90))", 
+            border: "none", }}
+          onClick={() => callNumber("1091")}
+        >
           📞 WOMEN HELPLINE - 1091
         </button>
       </div>
 
-      {/* SOS Confirmation Popup */}
-      {showPopup && (
-        <div className="popup" style={popupStyle}>
-          <div className="popup-content" style={popupContentStyle}>
-            <h5 style={{ textAlign: "center" }}>Is this a mistake?</h5>
-            <div className="d-flex justify-content-around mt-3">
-              <button
-                className="btn btn-danger"
-                onClick={() => handlePopupClick(true)}
-                style={buttonStyle}
-              >
-                Yes, it's a mistake
-              </button>
-              <button
-                className="btn btn-success"
-                onClick={() => handlePopupClick(false)}
-                style={buttonStyle}
-              >
-                No, continue
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
 
-      <div className="row mt-4">
-        <div className="col-md-4 mb-3">
-          <div className="card shadow-lg p-3">
-            <h5 className="fw-bold">🛡️ Safety Tips</h5>
-            <p className="text-muted">Learn how to stay safe in any situation.</p>
-            <button className="btn btn-primary" onClick={() => navigate("/safety-tips")}>
-              View Tips
-            </button>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card shadow-lg p-3">
-            <h5 className="fw-bold">🎥 Safety Videos</h5>
-            <p className="text-muted">Watch videos on personal safety measures.</p>
-            <button className="btn btn-primary" onClick={() => navigate("/Safety-Videos")}>
-              Watch Videos
-            </button>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card shadow-lg p-3">
-            <h5 className="fw-bold">📍 Share Live Location</h5>
-            <p className="text-muted">Send your live location for emergency help.</p>
-            <button className="btn btn-success" onClick={() => navigate("/ShareLocation")}>
-              Share Location
-            </button>
-          </div>
-        </div>
-      </div>
+      <Box sx={{ display: "flex", gap: 9, alignItems: "stretch" }}>
+        <Card sx={{ maxWidth: 300, border: "2px solid #7b539d", flexDirection: "column", display: "flex" }}>
+          <CardMedia sx={{ height: 100, width: "100%", objectFit: "cover" }} image={safetytips} title="SAFETY TIPS" />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div" fontWeight={"bold"}>
+              SAFETY TIPS
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              "Stay alert, follow the rules, and prioritize safety first!"
+            </Typography>
+          </CardContent>
+          <CardActions sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Button
+              size="small"
+              component={Link}
+              to="/safety-videos"
+              sx={{ fontWeight: "bold", color: "white", backgroundColor: "#7b539d", "&:hover": { backgroundColor: "#cab5d5" }}}
+            >
+              VIEW TIPS
+            </Button>
+          </CardActions>
+        </Card>
+
+        <Card sx={{ maxWidth: 300, border: "2px solid #7b539d" }}>
+          <CardMedia sx={{ height: 100, width: "100%", objectFit: "cover" }} image={safetyvideos} title="SAFETY VIDEOS" />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div" fontWeight={"bold"}>
+              SAFETY VIDEOS
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              "Watch, learn, and stay safe—safety first in every step!"
+            </Typography>
+          </CardContent>
+          <CardActions sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Button size="small" component={Link} to="/safety-videos" sx={{ fontWeight: "bold", color: "white", backgroundColor: "#7b539d", "&:hover": { backgroundColor: "#cab5d5" } }}>
+              VIEW VIDEOS
+            </Button>
+          </CardActions>
+        </Card>
+      </Box>
     </div>
   );
-};
-
-const popupStyle = {
-  position: "fixed",
-  top: "0",
-  left: "0",
-  width: "100%",
-  height: "100%",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: "9999",
-};
-
-const popupContentStyle = {
-  backgroundColor: "white",
-  padding: "20px",
-  borderRadius: "10px",
-  textAlign: "center",
-  width: "300px",
-};
-
-const buttonStyle = {
-  padding: "10px 20px",
-  margin: "10px",
 };
 
 export default Homepage;
