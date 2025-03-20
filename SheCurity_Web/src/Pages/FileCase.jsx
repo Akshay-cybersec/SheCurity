@@ -352,7 +352,17 @@ const FileCase = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center text-black font-weight-bold mb-4">FILE A CASE</h2> 
+      <style>
+    {`
+        .gradient-text {
+            background: linear-gradient(135deg, rgb(74, 6, 133), rgb(132, 74, 172), rgb(74, 6, 133));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+    `}
+</style>
+      <h2 className="text-center gradient-text font-weight-bold mb-4" >FILE A CASE</h2> 
       <form
         className="p-4"
         style={{ maxWidth: "700px", margin: "auto", borderRadius: "10px" }}
@@ -453,7 +463,7 @@ const FileCase = () => {
             borderRadius: "6px",
             background: isLoading
               ? "linear-gradient(90deg, #6c757d, #495057)"
-              : "linear-gradient(90deg, #007bff, #0056b3)",
+              : "linear-gradient(135deg,rgb(74, 6, 133),rgb(132, 74, 172),rgb(74, 6, 133))",
             border: "none",
             transition: "0.3s",
           }}
