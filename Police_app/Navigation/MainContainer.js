@@ -1,23 +1,16 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Colors from '../assets/Colors/color';
 
 import HomeScreen from './Screens/HomeScreen';
-import CardScreen from './Screens/CartScreen';
+import CaseScreen from './Screens/CaseScreen';
 
 const HomeName = 'Home';
-const ShoppingName = 'Shop';
-const TrustedPeopleName = 'Trusted People';
-const CardScreenName = 'Cart';
 const CaseScreenName = 'Case';
-const MorrescodeName = 'Morres code';
-
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
 
 export default function MainContainer() {
     return (
@@ -28,32 +21,42 @@ export default function MainContainer() {
                     tabBarIcon: ({ focused, color, size }) => {
                         let iconName;
                         let rn = route.name;
-
+                        
                         if (rn === HomeName) {
                             iconName = focused ? 'home' : 'home-outline';
-                        } else if (rn === ShoppingName) {
-                            iconName = focused ? 'cart' : 'cart-outline'; // 🛒 Fixed Shopping Icon
-                        } else if (rn === TrustedPeopleName) {
-                            iconName = focused ? 'people' : 'people-outline'; // 👥 Corrected Trusted People Icon
-                        } else if (rn === CardScreenName) {
-                            iconName = focused ? 'card' : 'card-outline'; // 🎴 Card Icon
                         } else if (rn === CaseScreenName) {
-                            iconName = focused ? 'briefcase' : 'briefcase-outline'; // ⚖️ Case Icon
+                            iconName = focused ? 'case' : 'card-outline';
                         }
-
+                        
                         return <Ionicons name={iconName} size={size} color={color} />;
                     },
                     tabBarActiveTintColor: Colors.primary,
-                    tabBarStyle: { height: 60 },
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarStyle: { 
+                        height: 60,
+                        paddingBottom: 5,
+                        paddingTop: 5
+                    },
+                    tabBarLabelStyle: {
+                        fontSize: 12,
+                        paddingBottom: 5
+                    },
                     headerTitleAlign: 'center',
                     headerStyle: { backgroundColor: Colors.primary },
                     headerTintColor: '#fff',
                     headerTitleStyle: { fontSize: 25, fontWeight: 'bold' },
                 })}
             >
-                <Tab.Screen name={HomeName} component={HomeScreen} options={{ headerTitle: 'Alerts' }} />
-                <Tab.Screen name={CardScreenName} component={CardScreen} options={{ headerTitle: 'Cases' }} />
-
+                <Tab.Screen 
+                    name={HomeName} 
+                    component={HomeScreen} 
+                    options={{ headerTitle: 'Alerts' }} 
+                />
+                <Tab.Screen 
+                    name={CaseScreenName} 
+                    component={CaseScreen} 
+                    options={{ headerTitle: 'Cases' }} 
+                />
             </Tab.Navigator>
         </NavigationContainer>
     );
