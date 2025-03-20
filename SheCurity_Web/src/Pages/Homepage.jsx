@@ -44,7 +44,6 @@ const Homepage = () => {
       );
     } else {
       alert("Geolocation is not supported by this browser.");
-
     }
   };
 
@@ -63,7 +62,6 @@ const Homepage = () => {
     } else {
       // Start SOS
       getLocation();
-
       setCountdown(10);
       setSosActive(true);
       sosAlarmRef.current.play().catch((error) => console.error("Error playing audio:", error));
@@ -76,7 +74,6 @@ const Homepage = () => {
             setSosActive(false);
             sosAlarmRef.current.pause();
             sosAlarmRef.current.currentTime = 0;
-
             return null;
           }
           return prev - 1;
@@ -152,6 +149,9 @@ const Homepage = () => {
           📞 WOMEN HELPLINE - 1091
         </button>
       </div>
+
+      
+
       <Box sx={{ display: "flex", gap: 9, alignItems: "stretch" }}>
         <Card sx={{ maxWidth: 300, border: "2px solid #7b539d", flexDirection: "column", display: "flex" }}>
           <CardMedia sx={{ height: 100, width: "100%", objectFit: "cover" }} image={safetytips} title="SAFETY TIPS" />
@@ -192,10 +192,8 @@ const Homepage = () => {
           </CardActions>
         </Card>
       </Box>
-
     </div>
   );
 };
 
 export default Homepage;
-
