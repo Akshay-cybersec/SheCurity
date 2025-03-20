@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {  FaMicrophone, FaShoppingCart, FaFileAlt } from "react-icons/fa";
 import { IoPersonAdd, IoHome } from "react-icons/io5";
+import { AiFillSafetyCertificate } from "react-icons/ai";
 import { colors } from "../assets/colors";
 import { pagedetail } from "../assets/colors";
 
@@ -19,7 +20,7 @@ const Side = () => {
       <ul className="nav flex-column">
         {[
           { to: "/", icon: <IoHome />, text: "Home" },
-          { to: "/Mimic", icon: <FaMicrophone />, text: "Emergency Mimic calls" },
+          { to: "/SafetyTracker", icon: <AiFillSafetyCertificate />, text: "Safety Tracker" },
           { to: "/TrustedPeople", icon: <IoPersonAdd />, text: "Trusted People" },
           { to: "/FileCase", icon: <FaFileAlt />, text: "File A Case" },
           { to: "/Products", icon: <FaShoppingCart />, text: "Safety Products" },

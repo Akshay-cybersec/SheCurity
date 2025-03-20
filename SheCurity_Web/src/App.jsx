@@ -2,7 +2,7 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./Mycomponents/Navbar";
 import Homepage from "./Pages/Homepage";
-import Mimic from "./Pages/Mimic";
+import SafetyTracker from "./Pages/SafetyTracker";
 import Products from "./Pages/Products";
 import Side from "./Mycomponents/Side";
 import FileCase from "./Pages/FileCase";
@@ -27,7 +27,7 @@ function App() {
           
           <Routes>
             <Route path="/" element={<Homepage />} />
-            <Route path="/Mimic" element={<Mimic />} />
+            <Route path="/SafetyTracker" element={<SafetyTracker />} />
             <Route path="/TrustedPeople" element={<TrustedPeople />} />
             <Route path="/Products" element={<Products />} />
             <Route path="/FileCase" element={<FileCase />} />
