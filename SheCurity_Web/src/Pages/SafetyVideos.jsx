@@ -26,8 +26,10 @@ const VideoCard = ({ videoSrc, title }) => {
   };
 
   return (
+    
     <div className="col-md-4 mb-4">
       <div className="card position-relative">
+        
         <video
           ref={videoRef}
           src={videoSrc}
@@ -72,6 +74,7 @@ const VideoGallery = () => {
           <VideoCard key={index} videoSrc={video.src} title={video.title} />
         ))}
       </div>
+      
     </div>
   );
 };
