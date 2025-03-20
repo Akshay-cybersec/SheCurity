@@ -11,13 +11,9 @@ import SafetyTips from './Pages/SafetyTips';
 import SafetyVideos from './Pages/SafetyVideos';
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useState, useEffect } from 'react';
-
-
 
 
 function App() {
-
   return (
     <Router>
       <div className="d-flex">
@@ -33,12 +29,10 @@ function App() {
             <Route path="/FileCase" element={<FileCase />} />
             <Route path="/safety-tips" element={<SafetyTips />} />
             <Route path="/Safety-Videos" element={<SafetyVideos />} />
-            
           </Routes>
-
-         
         </div>
-      </div>
+        </div>
+        
     </Router>
   );
 }

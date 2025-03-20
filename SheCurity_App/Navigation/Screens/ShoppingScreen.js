@@ -4,7 +4,7 @@ import { Button, Card } from 'react-native-paper';
 import { AntDesign } from "@expo/vector-icons";
 import Colors from '../../assets/Colors/color';
 import { useFocusEffect } from '@react-navigation/native';
-import products from '../../assets/data/products.json'; // Import the JSON file
+import products from '../../assets/data/products.json'; 
 
 export default function ShoppingScreen({ navigation, route }) {
   const [cart, setCart] = useState({});

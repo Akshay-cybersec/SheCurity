@@ -1,0 +1,38 @@
+[
+    {
+      "id": 1,
+      "title": "Smart Blender",
+      "description": "High-speed blender with multiple functions.",
+      "price": 49.99,
+      "imageUrl": "https://cdn11.bigcommerce.com/s-a3soq7nz2t/images/stencil/1280x1280/attribute_rule_images/21_source_1684527308.jpg"
+    },
+    {
+      "id": 2,
+      "title": "Non-Stick Frying Pan",
+      "description": "Durable and easy-to-clean frying pan.",
+      "price": 29.99,
+      "imageUrl": "https://example.com/images/frying-pan.jpg"
+    },
+    {
+      "id": 3,
+      "title": "Electric Kettle",
+      "description": "Fast-boiling electric kettle with auto shut-off.",
+      "price": 24.99,
+      "imageUrl": "https://example.com/images/kettle.jpg"
+    },
+    {
+      "id": 4,
+      "title": "Coffee Maker",
+      "description": "Brew fresh coffee quickly with this easy-to-use coffee maker.",
+      "price": 89.99,
+      "imageUrl": "https://example.com/images/coffee-maker.jpg"
+    },
+    {
+      "id": 5,
+      "title": "Microwave Oven",
+      "description": "Compact microwave oven with multiple power levels.",
+      "price": 199.99,
+      "imageUrl": "https://example.com/images/microwave.jpg"
+    }
+  ]
+  
