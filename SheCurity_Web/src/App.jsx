@@ -9,6 +9,7 @@ import FileCase from "./Pages/FileCase";
 import TrustedPeople from './Pages/TrustedPeople';
 import SafetyTips from './Pages/SafetyTips';
 import SafetyVideos from './Pages/SafetyVideos';
+
 import "bootstrap/dist/css/bootstrap.min.css";
 
 
