@@ -5,7 +5,6 @@ import { Linking } from 'react-native';
 import { Audio } from 'expo-av';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MapView, { Marker } from 'react-native-maps';
-import Torch from "react-native-torch";
 import { Camera } from "expo-camera";
 
 
@@ -16,12 +15,7 @@ export default function HomeScreen({ navigation }) {
   const [alertMessage, setAlertMessage] = useState('');
   const [isAlarmEnabled, setIsAlarmEnabled] = useState(true);
   const soundRef = useRef(null);
-  const [isTorchOn, setIsTorchOn] = useState(false);
 
-  const toggleFlashlight = () => {
-    setIsTorchOn(!isTorchOn);
-    Torch.switchState(!isTorchOn);
-  };
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -94,11 +88,6 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.flash}>
-        <View >
-          <Ionicons name="flashlight" size={40} color="black" style={styles.flashicon} onPress={toggleFlashlight} />
-        </View>
-      </View>
       <View style={styles.locationContainer}>
         <View>
           <Text style={styles.locationText}>{location}</Text>
