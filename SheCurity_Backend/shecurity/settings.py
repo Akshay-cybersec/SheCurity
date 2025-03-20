@@ -12,7 +12,8 @@ SECRET_KEY = 'django-insecure-ofossg(fo$4bkrxuou+%&@2eqtd-f97ng0lv61ro3o)_g(6zi9
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '192.168.0.248'
+    '192.168.0.248',
+    '127.0.0.1'
 ]
 
 
@@ -71,8 +72,11 @@ WSGI_APPLICATION = 'shecurity.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'SheCurity_db',
+        'USER':'postgres',
+        'PASSWORD':'postgres',
+        'HOST':'localhost'
     }
 }
 

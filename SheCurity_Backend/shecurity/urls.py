@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.urls import path
 from complaints.views import hello_world,ecommerce_data,upload_to_ipfs,fetch_all_locations
