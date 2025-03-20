@@ -1,48 +1,49 @@
 import React, { useEffect, useState, useRef } from "react";
-import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { ref, set } from "firebase/database";
+import { database } from "../Firebase";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import { Box } from "@mui/material";
+import safetytips from "../assets/safetytips.jpeg";
+import safetyvideos from "../assets/safetyvideos.png";
 
 const Homepage = () => {
-  const [alarmPlaying, setAlarmPlaying] = useState(false);
-  const [sosAlarmPlaying, setSosAlarmPlaying] = useState(false);
-  const [countdown, setCountdown] = useState(null);
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
   const [sosActive, setSosActive] = useState(false);
-  const alarmRef = useRef(new Audio("/siren.mp3"));
+  const [countdown, setCountdown] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
   const sosAlarmRef = useRef(new Audio("/siren.mp3"));
   const timerRef = useRef(null);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    alarmRef.current.loop = true;
-    sosAlarmRef.current.loop = true;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = "auto";
-      stopAlarm();
-      stopSosAlarm();
-      clearInterval(timerRef.current);
-    };
-  }, []);
-
-  const stopAlarm = () => {
-    alarmRef.current.pause();
-    alarmRef.current.currentTime = 0;
-    setAlarmPlaying(false);
+  const generateRandomString = (length) => {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    return Array.from({ length }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join("");
   };
 
-  const stopSosAlarm = () => {
-    sosAlarmRef.current.pause();
-    sosAlarmRef.current.currentTime = 0;
-    setSosAlarmPlaying(false);
+  const storeData = (latitude, longitude, message) => {
+    const userId = "user" + generateRandomString(5);
+    set(ref(database, "users/" + userId), { Latitude: latitude, Longitude: longitude, Message: message })
+      .then(() => console.log("Data stored successfully"))
+      .catch((error) => console.error("Error storing data: ", error));
   };
 
-  const toggleAlarm = () => {
-    if (alarmPlaying) {
-      stopAlarm();
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+        },
+        (error) => console.error("Error getting location: ", error)
+      );
     } else {
-      alarmRef.current.play().catch((error) => console.error("Error playing audio:", error));
-      setAlarmPlaying(true);
+      alert("Geolocation is not supported by this browser.");
     }
   };
 
@@ -52,22 +53,27 @@ const Homepage = () => {
 
   const handleSOSClick = () => {
     if (sosActive) {
-      clearInterval(timerRef.current);
-      setCountdown(null);
+      // Stop SOS if already active
       setSosActive(false);
-      stopSosAlarm();
+      setCountdown(null);
+      clearInterval(timerRef.current);
+      sosAlarmRef.current.pause();
+      sosAlarmRef.current.currentTime = 0;
     } else {
+      // Start SOS
+      getLocation();
       setCountdown(10);
       setSosActive(true);
       sosAlarmRef.current.play().catch((error) => console.error("Error playing audio:", error));
-      setSosAlarmPlaying(true);
+  
       timerRef.current = setInterval(() => {
         setCountdown((prev) => {
           if (prev === 1) {
+            if (latitude && longitude) storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
             clearInterval(timerRef.current);
-            callNumber("+8652550655");
             setSosActive(false);
-            stopSosAlarm();
+            sosAlarmRef.current.pause();
+            sosAlarmRef.current.currentTime = 0;
             return null;
           }
           return prev - 1;
@@ -75,75 +81,117 @@ const Homepage = () => {
       }, 1000);
     }
   };
+  
+  const handlePopupClick = (isMistake) => {
+    setShowPopup(false);
+    if (isMistake) {
+      setSosActive(false);
+      sosAlarmRef.current.pause();
+      sosAlarmRef.current.currentTime = 0;
+    } else if (latitude && longitude) {
+      storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
+    }
+  };
+
+  useEffect(() => {
+    sosAlarmRef.current.loop = true;
+    return () => {
+      clearInterval(timerRef.current);
+      sosAlarmRef.current.pause();
+    };
+  }, []);
 
   return (
     <div className="d-flex flex-column align-items-center justify-content-center my-4">
       <button
-        onClick={handleSOSClick}
-        className="btn btn-danger shadow-lg"
-        style={{
-          backgroundColor: "red",
-          color: "white",
-          width: "160px",
-          height: "160px",
-          fontSize: "22px",
-          fontWeight: "bold",
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: "20px",
-        }}
-      >
-        {countdown !== null ? `HELP!! (${countdown}s)` : "HELP!!"}
-      </button>
+  onClick={handleSOSClick}
+  className={`btn ${sosActive ? "btn-secondary" : "btn-danger"} shadow-lg`}
+  style={{
+    backgroundColor: sosActive ? "gray" : "red",
+    color: "white",
+    width: "200px",
+    height: "200px",
+    fontSize: "22px",
+    fontWeight: "bold",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: "20px",
+  }}
+>
+  {sosActive ? "STOP" : countdown !== null ? `HELP!! (${countdown}s)` : "HELP!!"}
+</button>
 
-      <button
-        onClick={toggleAlarm}
-        className="btn btn-warning d-flex align-items-center gap-2 shadow"
-        style={{ fontSize: "18px", fontWeight: "bold", borderRadius: "10px", padding: "12px 24px" }}
-      >
-        {alarmPlaying ? <FaVolumeMute /> : <FaVolumeUp />} Alarm
-      </button>
-
-      <div className="d-flex justify-content-center gap-4 my-3">
-        <button className="btn btn-info text-white fw-bold" style={{ padding: "12px 20px", borderRadius: "10px", minWidth: "200px" }} onClick={() => callNumber("100")}>
+      <div className="d-flex justify-content-center gap-10 my-3">
+        <button
+          className="btn btn-info text-white fw-bold"
+          style={{  padding: "12px 20px",
+            borderRadius: "10px",
+            minWidth: "200px",
+            background: "linear-gradient(135deg,rgb(149, 42, 226),rgb(61, 6, 90))", 
+            border: "none",
+            }}
+           
+          onClick={() => callNumber("100")}
+        >
           📞 POLICE HELPLINE - 100
         </button>
-        <button className="btn btn-info text-white fw-bold" style={{ padding: "12px 20px", borderRadius: "10px", minWidth: "200px" }} onClick={() => callNumber("1091")}>
+        <button
+          className="btn btn-info text-white fw-bold"
+          style={{ padding: "12px 20px",
+            borderRadius: "10px",
+            minWidth: "200px",
+            background: "linear-gradient(135deg,rgb(149, 42, 226),rgb(61, 6, 90))", 
+            border: "none", }}
+          onClick={() => callNumber("1091")}
+        >
           📞 WOMEN HELPLINE - 1091
         </button>
       </div>
 
-      <div className="row mt-4">
-        <div className="col-md-4 mb-3">
-          <div className="card shadow-lg p-3">
-            <h5 className="fw-bold">🛡️ Safety Tips</h5>
-            <p className="text-muted">Learn how to stay safe in any situation.</p>
-            <button className="btn btn-primary" onClick={() => navigate("/safety-tips")}>
-              View Tips
-            </button>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card shadow-lg p-3">
-            <h5 className="fw-bold">🎥 Safety Videos</h5>
-            <p className="text-muted">Watch videos on personal safety measures.</p>
-            <button className="btn btn-primary" onClick={() => navigate("/Safety-Videos")}>
-              Watch Videos
-            </button>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card shadow-lg p-3">
-            <h5 className="fw-bold">📍 Share Live Location</h5>
-            <p className="text-muted">Send your live location for emergency help.</p>
-            <button className="btn btn-success" onClick={() => navigate("/live-location")}>
-              Share Location
-            </button>
-          </div>
-        </div>
-      </div>
+      
+
+      <Box sx={{ display: "flex", gap: 9, alignItems: "stretch" }}>
+        <Card sx={{ maxWidth: 300, border: "2px solid #7b539d", flexDirection: "column", display: "flex" }}>
+          <CardMedia sx={{ height: 100, width: "100%", objectFit: "cover" }} image={safetytips} title="SAFETY TIPS" />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div" fontWeight={"bold"}>
+              SAFETY TIPS
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              "Stay alert, follow the rules, and prioritize safety first!"
+            </Typography>
+          </CardContent>
+          <CardActions sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Button
+              size="small"
+              component={Link}
+              to="/safety-videos"
+              sx={{ fontWeight: "bold", color: "white", backgroundColor: "#7b539d", "&:hover": { backgroundColor: "#cab5d5" }}}
+            >
+              VIEW TIPS
+            </Button>
+          </CardActions>
+        </Card>
+
+        <Card sx={{ maxWidth: 300, border: "2px solid #7b539d" }}>
+          <CardMedia sx={{ height: 100, width: "100%", objectFit: "cover" }} image={safetyvideos} title="SAFETY VIDEOS" />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div" fontWeight={"bold"}>
+              SAFETY VIDEOS
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              "Watch, learn, and stay safe—safety first in every step!"
+            </Typography>
+          </CardContent>
+          <CardActions sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Button size="small" component={Link} to="/safety-videos" sx={{ fontWeight: "bold", color: "white", backgroundColor: "#7b539d", "&:hover": { backgroundColor: "#cab5d5" } }}>
+              VIEW VIDEOS
+            </Button>
+          </CardActions>
+        </Card>
+      </Box>
     </div>
   );
 };

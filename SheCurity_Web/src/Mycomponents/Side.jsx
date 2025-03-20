@@ -5,12 +5,13 @@ import { colors } from "../assets/colors";
 import { pagedetail } from "../assets/colors";
 
 const Side = () => {
-  const location = useLocation(); // Get current route
+  const location = useLocation(); 
 
   return (
     <div
       className="position-fixed top-0 start-0 vh-100 text-white d-flex flex-column p-3"
-      style={{ width: "20%", backgroundColor: colors.main_color }}
+      style={{ width: "20%", background: "linear-gradient(135deg,rgb(74, 6, 133),rgb(132, 74, 172),rgb(74, 6, 133))", 
+        backgroundSize: "400% 400%", }}
     >
       <h2 className="mb-4">{pagedetail.logo_title}</h2>
       <p> Empowering Women with Smart Safety </p>
@@ -28,14 +29,14 @@ const Side = () => {
               to={to}
               className="nav-link text-white d-flex align-items-center gap-2"
               style={{
-                backgroundColor: location.pathname === to ? "#2C2C2C" : "transparent", // Active link color
+                backgroundColor: location.pathname === to ? "#cab5d5" : "transparent", // Active link color
                 padding: "10px",
                 borderRadius: "5px",
                 transition: "0.3s",
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#2C2C2C")} // Hover effect
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#cab5d5")} // Hover effect
               onMouseLeave={(e) =>
-                (e.target.style.backgroundColor = location.pathname === to ? "#2C2C2C" : "transparent")
+                (e.target.style.backgroundColor = location.pathname === to ? "#cab5d5" : "transparent")
               } 
             >
               {icon} {text}
@@ -46,5 +47,4 @@ const Side = () => {
     </div>
   );
 };
-
-export default Side;
+export default Side ;

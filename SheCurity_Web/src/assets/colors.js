@@ -1,6 +1,6 @@
 export const colors={
-    main_color:"#008585",
-    second_color:"#008585"
+    main_color:"#7b539d",
+    second_color:""
 }
 
 export const pagedetail={
