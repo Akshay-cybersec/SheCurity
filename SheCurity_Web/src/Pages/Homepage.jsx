@@ -11,15 +11,23 @@ import Typography from "@mui/material/Typography";
 import { Box } from "@mui/material";
 import safetytips from "../assets/safetytips.jpeg";
 import safetyvideos from "../assets/safetyvideos.png";
+const sirenSound = "/siren.mp3"; 
+
+import { FaComments } from "react-icons/fa";
+import Chatbot from "./Chatbot";
+
 
 const Homepage = () => {
+   
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
   const [sosActive, setSosActive] = useState(false);
   const [countdown, setCountdown] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
-  const sosAlarmRef = useRef(new Audio("/siren.mp3"));
+  const [audio] = useState(new Audio("/siren.mp3"));
   const timerRef = useRef(null);
+  const chatEndRef = useRef(null);
+
 
   const generateRandomString = (length) => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -50,78 +58,82 @@ const Homepage = () => {
   const callNumber = (number) => {
     window.location.href = `tel:${number}`;
   };
-
   const handleSOSClick = () => {
-    if (sosActive) {
-      // Stop SOS if already active
-      setSosActive(false);
-      setCountdown(null);
-      clearInterval(timerRef.current);
-      sosAlarmRef.current.pause();
-      sosAlarmRef.current.currentTime = 0;
-    } else {
-      // Start SOS
-      getLocation();
-      setCountdown(10);
-      setSosActive(true);
-      sosAlarmRef.current.play().catch((error) => console.error("Error playing audio:", error));
-  
-      timerRef.current = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev === 1) {
-            if (latitude && longitude) storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
-            clearInterval(timerRef.current);
-            setSosActive(false);
-            sosAlarmRef.current.pause();
-            sosAlarmRef.current.currentTime = 0;
-            return null;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    audio.loop = true;
+    audio.play();
+    setCountdown(10);
+    setSosActive(true);
+    setShowPopup(true);
+  };
+
+  const handlePopupResponse = (response) => {
+    setShowPopup(false);
+    if (!response) {
+      stopSOS();
     }
   };
-  
-  const handlePopupClick = (isMistake) => {
-    setShowPopup(false);
-    if (isMistake) {
-      setSosActive(false);
-      sosAlarmRef.current.pause();
-      sosAlarmRef.current.currentTime = 0;
-    } else if (latitude && longitude) {
-      storeData(latitude, longitude, "SOS Alert - Immediate help needed!");
+
+  const stopSOS = () => {
+    setSosActive(false);
+    setCountdown(null);
+    audio.pause();
+    audio.currentTime = 0;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
   };
 
   useEffect(() => {
-    sosAlarmRef.current.loop = true;
-    return () => {
-      clearInterval(timerRef.current);
-      sosAlarmRef.current.pause();
-    };
-  }, []);
-
+    if (sosActive && countdown !== null) {
+      if (countdown > 0) {
+        timerRef.current = setTimeout(() => setCountdown(countdown - 1), 1000);
+        return () => clearTimeout(timerRef.current);
+      } else {
+        stopSOS();
+      }
+    }
+  }, [countdown, sosActive]);
   return (
     <div className="d-flex flex-column align-items-center justify-content-center my-4">
       <button
-  onClick={handleSOSClick}
-  className={`btn ${sosActive ? "btn-secondary" : "btn-danger"} shadow-lg`}
-  style={{
-    backgroundColor: sosActive ? "gray" : "red",
-    color: "white",
-    width: "200px",
-    height: "200px",
-    fontSize: "22px",
-    fontWeight: "bold",
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: "20px",
-  }}
->
-  {sosActive ? "STOP" : countdown !== null ? `HELP!! (${countdown}s)` : "HELP!!"}
-</button>
+        onClick={handleSOSClick}
+        className={`btn ${sosActive ? "btn-secondary" : "btn-danger"} shadow-lg`}
+        style={{
+          backgroundColor: sosActive ? "gray" : "red",
+          color: "white",
+          width: "200px",
+          height: "200px",
+          fontSize: "22px",
+          fontWeight: "bold",
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: "20px",
+        }}
+      >
+        {sosActive ? "STOP" : countdown !== null ? `HELP!! (${countdown}s)` : "HELP!!"}
+      </button>
+
+      
+         {showPopup && (
+          <div style={{
+            position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", 
+            background: "linear-gradient(135deg, rgb(74, 6, 133), rgb(132, 74, 172), rgb(74, 6, 133))", padding: "25px", borderRadius: "12px", 
+            boxShadow: "0 4px 15px rgb(179, 82, 198)", textAlign: "center", minWidth: "300px"
+          }}>
+            <p style={{ fontSize: "18px", fontWeight: "bold", marginBottom: "15px" }}>Are you in danger?</p>
+            <button onClick={() => handlePopupResponse(true)} 
+              style={{ margin: "10px", padding: "12px 20px", borderRadius: "8px", border: "none", backgroundColor: "#ff4d4d", color: "white", fontWeight: "bold", cursor: "pointer" }}>
+              Yes
+            </button>
+            <button onClick={() => handlePopupResponse(false)} 
+              style={{ margin: "10px", padding: "12px 20px", borderRadius: "8px", border: "none", backgroundColor: "#4CAF50", color: "white", fontWeight: "bold", cursor: "pointer" }}>
+              No
+            </button>
+          </div>
+        )}
+      
 
       <div className="d-flex justify-content-center gap-10 my-3">
         <button
@@ -192,8 +204,17 @@ const Homepage = () => {
             </Button>
           </CardActions>
         </Card>
-      </Box>
-    </div>
+      </Box> 
+      <Link
+        to="/Chatbot"
+        className="position-fixed bottom-3 end-3  text-white p-3 rounded-circle shadow-lg"
+        style={{ right: "20px", bottom: "20px", 
+          background: "linear-gradient(135deg,rgb(74, 6, 133),rgb(132, 74, 172),rgb(74, 6, 133))", }}
+      >
+        <FaComments size={30} />
+      </Link>
+    
+     </div>
   );
 };
 
