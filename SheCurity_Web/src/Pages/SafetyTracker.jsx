@@ -17,6 +17,27 @@ const calculateDistance = (lat1, lng1, lat2, lng2) => {
   return distance;
 };
 
+// Function to get the midpoint between two lat/lng
+const getMidpoint = (lat1, lng1, lat2, lng2) => {
+  const lat1Rad = (lat1 * Math.PI) / 180;
+  const lng1Rad = (lng1 * Math.PI) / 180;
+  const lat2Rad = (lat2 * Math.PI) / 180;
+  const lng2Rad = (lng2 * Math.PI) / 180;
+
+  const Bx = Math.cos(lat2Rad) * Math.cos(lng2Rad - lng1Rad);
+  const By = Math.cos(lat2Rad) * Math.sin(lng2Rad - lng1Rad);
+  const latMid = Math.atan2(
+    Math.sin(lat1Rad) + Math.sin(lat2Rad),
+    Math.sqrt((Math.cos(lat1Rad) + Bx) * (Math.cos(lat1Rad) + Bx) + By * By)
+  );
+  const lngMid = lng1Rad + Math.atan2(By, Math.cos(lat1Rad) + Bx);
+
+  return {
+    lat: (latMid * 180) / Math.PI,
+    lng: (lngMid * 180) / Math.PI,
+  };
+};
+
 const containerStyle = {
   width: "100vw",
   height: "100vh",
@@ -24,13 +45,13 @@ const containerStyle = {
 
 const SafetyTracker = () => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyAa6STY57uip-1tC6cGGeFAi18LOLsYmoo", // Replace with your Google Maps API key
+    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY", // Replace with your Google Maps API key
   });
 
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const polylineRef = useRef(null);
-  const circlesRef = useRef([]); // Array to store circles
+  const circleRef = useRef(null); // To store the circle reference
   const [currentLocation, setCurrentLocation] = useState(null);
   const [locationName, setLocationName] = useState("Fetching Current location...");
   const [destination, setDestination] = useState(null);
@@ -39,7 +60,6 @@ const SafetyTracker = () => {
   const [watchId, setWatchId] = useState(null);
   const [alertShown, setAlertShown] = useState(false);
 
-  const radius = 5000; // 5000 meters (5 km) for the alert range
   const [route, setRoute] = useState([]); // To store the route path points
 
   // Get user's current location and location name (city, country)
@@ -107,7 +127,7 @@ const SafetyTracker = () => {
     const { latLng } = event;
     const lat = latLng.lat();
     const lng = latLng.lng();
-    
+
     setDestination({ lat, lng });
 
     // Remove previous destination marker if it exists
@@ -161,33 +181,36 @@ const SafetyTracker = () => {
 
     polylineRef.current.setMap(mapRef.current.state.map);
 
-    // Draw multiple circles along the path
-    if (circlesRef.current) {
-      circlesRef.current.forEach(circle => {
-        circle.setMap(null); // Remove previous circles
-      });
-      circlesRef.current = [];
+    // Remove the previous circle if it exists
+    if (circleRef.current) {
+      circleRef.current.setMap(null);
     }
 
-    // Draw circles along the route
-    const numberOfCircles = 10; // Number of circles between start and end
-    for (let i = 0; i <= numberOfCircles; i++) {
-      const lat = currentLocation.lat + (i / numberOfCircles) * (destination.lat - currentLocation.lat);
-      const lng = currentLocation.lng + (i / numberOfCircles) * (destination.lng - currentLocation.lng);
+    // Calculate the distance between start and destination to create a circle that covers both
+    const distance = calculateDistance(
+      currentLocation.lat,
+      currentLocation.lng,
+      lat,
+      lng
+    );
 
-      const circle = new google.maps.Circle({
-        map: mapRef.current.state.map,
-        center: { lat, lng },
-        radius: radius, // Define the radius in meters
-        fillColor: "red",
-        fillOpacity: 0.3,
-        strokeColor: "red",
-        strokeOpacity: 1.0,
-        strokeWeight: 2,
-      });
+    // Decrease the radius by 3/4 of the original distance
+    const reducedRadius = (distance * 3) / 4;
 
-      circlesRef.current.push(circle);
-    }
+    // Get the midpoint between the current location and the destination
+    const midpoint = getMidpoint(currentLocation.lat, currentLocation.lng, lat, lng);
+
+    // Create one circle that covers both locations, positioned at the midpoint
+    circleRef.current = new google.maps.Circle({
+      map: mapRef.current.state.map,
+      center: midpoint, // Position the circle at the midpoint
+      radius: reducedRadius, // Set the radius to 3/4 of the original distance
+      fillColor: "red",
+      fillOpacity: 0.3,
+      strokeColor: "red",
+      strokeOpacity: 1.0,
+      strokeWeight: 2,
+    });
 
     // Center the map on the destination
     mapRef.current.state.map.setCenter({ lat, lng });
@@ -212,21 +235,15 @@ const SafetyTracker = () => {
           destination.lng
         );
 
-        // Check if the user is outside any of the circles
-        let isOutOfRoute = false;
-        circlesRef.current.forEach(circle => {
-          const circleDistance = calculateDistance(
-            latitude,
-            longitude,
-            circle.getCenter().lat(),
-            circle.getCenter().lng()
-          );
-          if (circleDistance > radius) {
-            isOutOfRoute = true;
-          }
-        });
+        // Check if the user is outside the circle
+        const circleDistance = calculateDistance(
+          latitude,
+          longitude,
+          circleRef.current.getCenter().lat(),
+          circleRef.current.getCenter().lng()
+        );
 
-        if (isOutOfRoute && !alertShown) {
+        if (circleDistance > circleRef.current.getRadius() && !alertShown) {
           alert("You have moved beyond the allowed route!");
           setAlertShown(true);
         }
