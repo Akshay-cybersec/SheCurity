@@ -1,14 +1,15 @@
   import { useState, useEffect } from "react";
+  import axios from 'axios';
+
 
   export default function SafetyProducts() {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-      fetch('http://localhost:8000/api/ecommerce/') 
-        .then((response) => response.json())
-        .then((data) => setProducts(data))
-        .catch((error) => console.error("Error fetching data:", error));
-    }, []);
+  axios.get('http://172.17.25.229:8000/api/ecommerce')
+    .then(({ data }) => setProducts(data))
+    .catch(error => console.error("Error fetching data:", error));
+}, []);
 
     const updateQuantity = (id, delta) => {
       setProducts(products.map(product => 
