@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 
-// Function to calculate the distance between two points in meters using the Haversine formula
+// Function to calculate the distance between two points using the Haversine formula
 const calculateDistance = (lat1, lng1, lat2, lng2) => {
   const R = 6371; // Radius of the Earth in km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -24,12 +24,13 @@ const containerStyle = {
 
 const SafetyTracker = () => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyAa6STY57uip-1tC6cGGeFAi18LOLsYmoo",
+    googleMapsApiKey: "AIzaSyAa6STY57uip-1tC6cGGeFAi18LOLsYmoo", // Replace with your Google Maps API key
   });
 
   const mapRef = useRef(null);
   const markerRef = useRef(null);
-  const circleRef = useRef(null); // Reference for the radius circle
+  const polylineRef = useRef(null);
+  const circlesRef = useRef([]); // Array to store circles
   const [currentLocation, setCurrentLocation] = useState(null);
   const [locationName, setLocationName] = useState("Fetching Current location...");
   const [destination, setDestination] = useState(null);
@@ -38,12 +39,12 @@ const SafetyTracker = () => {
   const [watchId, setWatchId] = useState(null);
   const [alertShown, setAlertShown] = useState(false);
 
-  const radius = 500; // Define the radius in meters for alert (500 meters)
+  const radius = 5000; // 5000 meters (5 km) for the alert range
+  const [route, setRoute] = useState([]); // To store the route path points
 
   // Get user's current location and location name (city, country)
   useEffect(() => {
     if (navigator.geolocation) {
-      // Try to fetch current location
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
@@ -82,6 +83,14 @@ const SafetyTracker = () => {
             map,
             position: currentLocation,
             title: "Your Location",
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 7,
+              fillColor: "red", // Red marker for current location
+              fillOpacity: 1,
+              strokeWeight: 2,
+              strokeColor: "white",
+            },
           });
         } else {
           markerRef.current.setPosition(currentLocation);
@@ -101,33 +110,27 @@ const SafetyTracker = () => {
     
     setDestination({ lat, lng });
 
+    // Remove previous destination marker if it exists
     if (markerRef.current) {
-      markerRef.current.setMap(null); // Remove previous destination marker
+      markerRef.current.setMap(null); 
     }
 
+    // Set new destination marker
     markerRef.current = new google.maps.Marker({
       map: mapRef.current.state.map,
       position: { lat, lng },
       title: "Destination",
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 7,
+        fillColor: "blue", // Blue marker for destination
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "white",
+      },
     });
 
-    // Create or update the radius circle
-    if (circleRef.current) {
-      circleRef.current.setMap(null); // Remove old circle
-    }
-
-    circleRef.current = new google.maps.Circle({
-      map: mapRef.current.state.map,
-      center: { lat, lng },
-      radius: radius,
-      strokeColor: "#FF0000",
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: "#FF0000",
-      fillOpacity: 0.35,
-    });
-
-    // Fetch location name (city, country) for the destination
+    // Fetch and set location name for the destination
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
@@ -138,6 +141,52 @@ const SafetyTracker = () => {
       setDestinationName(`${city}, ${country}`);
     } catch (error) {
       setDestinationName("Unable to fetch destination location");
+    }
+
+    // Create or update the polyline (route) on the map
+    if (polylineRef.current) {
+      polylineRef.current.setMap(null); // Remove old route
+    }
+
+    const path = [currentLocation, { lat, lng }];
+    setRoute(path);
+
+    polylineRef.current = new google.maps.Polyline({
+      path,
+      geodesic: true,
+      strokeColor: "#0000FF",
+      strokeOpacity: 1.0,
+      strokeWeight: 2,
+    });
+
+    polylineRef.current.setMap(mapRef.current.state.map);
+
+    // Draw multiple circles along the path
+    if (circlesRef.current) {
+      circlesRef.current.forEach(circle => {
+        circle.setMap(null); // Remove previous circles
+      });
+      circlesRef.current = [];
+    }
+
+    // Draw circles along the route
+    const numberOfCircles = 10; // Number of circles between start and end
+    for (let i = 0; i <= numberOfCircles; i++) {
+      const lat = currentLocation.lat + (i / numberOfCircles) * (destination.lat - currentLocation.lat);
+      const lng = currentLocation.lng + (i / numberOfCircles) * (destination.lng - currentLocation.lng);
+
+      const circle = new google.maps.Circle({
+        map: mapRef.current.state.map,
+        center: { lat, lng },
+        radius: radius, // Define the radius in meters
+        fillColor: "red",
+        fillOpacity: 0.3,
+        strokeColor: "red",
+        strokeOpacity: 1.0,
+        strokeWeight: 2,
+      });
+
+      circlesRef.current.push(circle);
     }
 
     // Center the map on the destination
@@ -153,24 +202,45 @@ const SafetyTracker = () => {
 
     setIsJourneyStarted(true);
 
-    // Watch user's location
     const id = navigator.geolocation.watchPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        const distance = calculateDistance(
+        const distanceToDestination = calculateDistance(
           latitude,
           longitude,
           destination.lat,
           destination.lng
         );
 
-        // Alert if the user is outside the radius
-        if (distance > radius && !alertShown) {
-          alert("You have moved beyond the destination's allowed radius!");
+        // Check if the user is outside any of the circles
+        let isOutOfRoute = false;
+        circlesRef.current.forEach(circle => {
+          const circleDistance = calculateDistance(
+            latitude,
+            longitude,
+            circle.getCenter().lat(),
+            circle.getCenter().lng()
+          );
+          if (circleDistance > radius) {
+            isOutOfRoute = true;
+          }
+        });
+
+        if (isOutOfRoute && !alertShown) {
+          alert("You have moved beyond the allowed route!");
           setAlertShown(true);
         }
 
         setCurrentLocation({ lat: latitude, lng: longitude });
+
+        // Update the route path to follow the user's movement
+        const updatedRoute = [...route, { lat: latitude, lng: longitude }];
+        setRoute(updatedRoute);
+
+        // Optionally update the polyline as the user moves
+        if (polylineRef.current) {
+          polylineRef.current.setPath(updatedRoute);
+        }
       },
       (error) => {
         console.error("Error getting location:", error);
