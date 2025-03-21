@@ -193,9 +193,9 @@ const SafetyTracker = () => {
   if (!isLoaded) return <p>Loading...</p>;
 
   return (
-    <div>
-      <div className="d-flex align-items-end justify-center">
-        <div className="input-group me-2" style={{ width: "300px" }}>
+    <div className="container">
+      <div className="d-flex align-items-end justify-content-center gap-3 mb-4">
+        <div className="input-group " style={{ width: "300px" }}>
           <div className="input-group-prepend">
             <span className="input-group-text">Current Location</span>
           </div>
@@ -232,7 +232,7 @@ const SafetyTracker = () => {
         </button>
       </div>
 
-      <div style={{ width: "70vw", height: "70vh" }}>
+      <div style={{  width: "100%", height: "70vh", overflow: "hidden" }}>
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={currentLocation || { lat: 51.505, lng: -0.09 }}

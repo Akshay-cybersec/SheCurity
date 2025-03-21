@@ -9,7 +9,7 @@ import FileCase from "./Pages/FileCase";
 import TrustedPeople from './Pages/TrustedPeople';
 import SafetyTips from './Pages/SafetyTips';
 import SafetyVideos from './Pages/SafetyVideos';
-
+import Chatbot from './Pages/Chatbot';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState, useEffect } from 'react';
 
@@ -33,7 +33,7 @@ function App() {
             <Route path="/FileCase" element={<FileCase />} />
             <Route path="/safety-tips" element={<SafetyTips />} />
             <Route path="/Safety-Videos" element={<SafetyVideos />} />
-            
+            <Route path="/Chatbot" element={<Chatbot/>} />
           </Routes>
 
          
