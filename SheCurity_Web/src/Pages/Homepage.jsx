@@ -167,7 +167,7 @@ const Homepage = () => {
             <Button
               size="small"
               component={Link}
-              to="/safety-videos"
+              to="/safety-tips"
               sx={{ fontWeight: "bold", color: "white", backgroundColor: "#7b539d", "&:hover": { backgroundColor: "#cab5d5" }}}
             >
               VIEW TIPS
@@ -186,7 +186,8 @@ const Homepage = () => {
             </Typography>
           </CardContent>
           <CardActions sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <Button size="small" component={Link} to="/safety-videos" sx={{ fontWeight: "bold", color: "white", backgroundColor: "#7b539d", "&:hover": { backgroundColor: "#cab5d5" } }}>
+            <Button size="small" component={Link} to="/safety-videos" sx={{ fontWeight: "bold", 
+              color: "white", backgroundColor: "#7b539d", "&:hover": { backgroundColor: "#cab5d5" } }}>
               VIEW VIDEOS
             </Button>
           </CardActions>
