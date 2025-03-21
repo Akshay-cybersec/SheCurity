@@ -6,6 +6,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.conf import settings
 from web3 import Web3
+from .serializers import EcommerceSerializer
+from rest_framework import status
+from .models import Ecommerce
+
+
 
 INFURA_URL="https://sepolia.infura.io/v3/b13adaf2665b4a53b4d824bf7bd6c99b"
 CONTRACT_ADDRESS = "0xA0157Bff161Ab46068B6789826535d72C865736B";
@@ -271,7 +276,20 @@ def hello_world(request):
 
 @api_view(['GET'])
 def ecommerce_data(request):
-    return Response({"message": "ecommerce"})
+    products = Ecommerce.objects.all()  
+    serializer = EcommerceSerializer(products, many=True, context={'request': request})
+    return Response(serializer.data)  
+
+
+@api_view(['POST'])
+def create_product(request):
+    serializer = EcommerceSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "Product added successfully!", "data": serializer.data}, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @csrf_exempt
 def upload_to_ipfs(request):

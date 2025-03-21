@@ -1,91 +1,82 @@
-import React, { useState, useEffect } from "react";
-import { GoogleMap, LoadScript, Marker, DirectionsRenderer } from "@react-google-maps/api";
-
-const GOOGLE_MAPS_APIKEY = "AIzaSyDdxw4FZYV2VayOiy_HvG7rzbnF_sezXJ8";
+import React, { useRef, useEffect } from "react";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 
 const containerStyle = {
-  width: "100%",
-  height: "500px",
+  width: "100vw",  // Full viewport width
+  height: "100vh", // Full viewport height
 };
 
-const MapComponent = () => {
-  const [currentLocation, setCurrentLocation] = useState(null);
-  const [destination, setDestination] = useState({ lat: 19.0760, lng: 72.8777 }); // Example: Mumbai
-  const [directions, setDirections] = useState(null);
+const center = {
+  lat: 51.505, // Example latitude (London)
+  lng: -0.09,  // Example longitude
+};
 
-  // Get User's Current Location
+// const MapComponent = () => {
+// };
+
+// export default MapComponent;
+
+
+const SafetyTracker = () => {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: "AIzaSyAa6STY57uip-1tC6cGGeFAi18LOLsYmoo",
+  });
+
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCurrentLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => console.error(error)
-      );
+    if (isLoaded && mapRef.current) {
+      const map = mapRef.current.state.map;
+
+      if (map && !markerRef.current) {
+        markerRef.current = new google.maps.marker.AdvancedMarkerElement({
+          map,
+          position: center,
+          title: "Custom Marker",
+        });
+      }
     }
-  }, []);
+  }, [isLoaded]);
 
-  // Fetch Directions
-  useEffect(() => {
-    if (currentLocation) {
-      const directionsService = new window.google.maps.DirectionsService();
-      directionsService.route(
-        {
-          origin: currentLocation,
-          destination: destination,
-          travelMode: window.google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === window.google.maps.DirectionsStatus.OK) {
-            setDirections(result);
-          } else {
-            console.error(`Error fetching directions: ${status}`);
-          }
-        }
-      );
-    }
-  }, [currentLocation]);
-
-  // Track User's Movement
-  useEffect(() => {
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const newLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        setCurrentLocation(newLocation);
-
-        // Alert if user deviates from the route (basic distance check)
-        const distanceThreshold = 0.01; // Adjust for sensitivity
-        const distance = Math.sqrt(
-          Math.pow(newLocation.lat - destination.lat, 2) +
-          Math.pow(newLocation.lng - destination.lng, 2)
-        );
-
-        if (distance > distanceThreshold) {
-          alert("Warning: You are moving away from the route!");
-        }
-      },
-      (error) => console.error(error),
-      { enableHighAccuracy: true, maximumAge: 1000 }
-    );
-
-    return () => navigator.geolocation.clearWatch(watchId);
-  }, []);
+  if (!isLoaded) return <p>Loading...</p>;
 
   return (
-    <LoadScript googleMapsApiKey={GOOGLE_MAPS_APIKEY}>
-      <GoogleMap mapContainerStyle={containerStyle} center={currentLocation || destination} zoom={14}>
-        {currentLocation && <Marker position={currentLocation} label="You" />}
-        <Marker position={destination} label="Destination" />
-        {directions && <DirectionsRenderer directions={directions} />}
-      </GoogleMap>
-    </LoadScript>
-  );
-};
+    <div>
+      <div className="d-flex align-items-end justify-center">
+          <div className="input-group me-2 " style={{ width: '300px' }}>
+            <div className="input-group-prepend">
+              <span className="input-group-text">Current Location</span>
+            </div>
+            <textarea className="form-control" aria-label="With textarea"></textarea>
+          </div>
 
-export default MapComponent;
+          <div className="input-group me-2 " style={{ width: '300px' }}>
+            <div className="input-group-prepend">
+              <span className="input-group-text">Destination Location</span>
+            </div>
+            <textarea className="form-control" aria-label="With textarea"></textarea>
+          </div>
+
+          <button className="btn btn-primary d-flex align-items-center" style={{
+            backgroundImage: 'linear-gradient(135deg, rgb(74, 6, 133), rgb(132, 74, 172), rgb(74, 6, 133))',
+            border: 'none',
+            color: '#fff'
+          }}>
+            <i className="bi bi-geo-alt-fill me-3"></i> Start Journey
+          </button>
+      </div>
+
+      <div style={{ width: "70vw", height: "70vh" }}>
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={center}
+          zoom={13}
+          onLoad={(map) => (mapRef.current = { state: { map } })}
+        />
+      </div>
+    </div>
+  )
+}
+
+export default SafetyTracker
